@@ -4,18 +4,18 @@ import scala.RuntimeException
 import java.io.{InputStreamReader, InputStream, BufferedReader}
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.client.methods.HttpPost
-import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
 import com.streaming.social.common.Http._
-import com.streaming.social.common.{OAuthProvider, Json}
+import com.streaming.social.common.OAuthProvider
 import akka.event.Logging
 
 
-class TwitterConnector(url: String, oAuthProvider: OAuthProvider) extends Actor {
+class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorRef) extends Actor {
 
   val log = Logging(context.system, this)
   val httpClient = new DefaultHttpClient
-
+  var idle = true
+  val httpPost = new HttpPost(url)
 
   override def postStop() {
     super.postStop()
@@ -23,36 +23,37 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider) extends Actor 
   }
 
   def receive = {
-    case StartSream(track) => streamByCriteria(track: String)
-    case Finish => log.info("connector is terminating")
+    case StartSream(track) if idle => idle = false; streamByCriteria(track: String)
+    case StopStream => idle = true; httpPost.releaseConnection()
+    case ReadStream(stream) if !idle => extractBody(stream)
     case _ => log.error("Action not valid")
   }
 
 
   private def streamByCriteria(track: String) {
-    try {
-      val httpPost = new HttpPost(url)
-      addHeader(httpPost, oAuthProvider.getOAuthHeader())
-      val httpResponse = httpClient.execute(addValuePairToBody(httpPost, List(("track", track))))
-      httpResponse.getStatusLine.getStatusCode match {
-        case 200 => extractBody(httpResponse.getEntity.getContent);
-        case _ => throw new RuntimeException("Status code: " + httpResponse.getStatusLine)
+
+    addHeader(httpPost, oAuthProvider.getOAuthHeader(track))
+    val httpResponse = httpClient.execute(addValuePairToBody(httpPost, List(("track", track))))
+    httpResponse.getStatusLine.getStatusCode match {
+      case 200 => self ! ReadStream(httpResponse.getEntity.getContent)
+      case _ => {
+        httpClient.getConnectionManager.shutdown
+        throw new RuntimeException("Status code: " + httpResponse.getStatusLine)
       }
-    }
-    finally {
-      httpClient.getConnectionManager.shutdown
     }
   }
 
   private def extractBody(instream: InputStream) {
     var br: BufferedReader = new BufferedReader(new InputStreamReader(instream))
-    while (true) {
-      Option(br.readLine) match {
-        case Some(tweet) if (tweet.trim.length == 0 || tweet.contains("\"limit\":{\"track\"")) => log.warning("Ignore it")
-        case Some(tweet) => {
-          sender ! Tweet(tweet)
-        }
-        case None => throw new RuntimeException("The content coming from Twitter is null")
+    Option(br.readLine) match {
+      case Some(tweet) if (tweet.trim.length == 0 || tweet.contains("\"limit\":{\"track\"")) => log.warning("Ignore it")
+      case Some(tweet) => {
+        master ! Tweet(tweet)
+        self ! ReadStream(instream)
+      }
+      case None => {
+        httpClient.getConnectionManager.shutdown
+        throw new RuntimeException("The content coming from Twitter is null")
       }
     }
   }

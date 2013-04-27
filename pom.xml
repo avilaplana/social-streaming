@@ -14,11 +14,16 @@
         </repository>
     </repositories>
     <properties>
+        <main.basedir>${project.basedir}</main.basedir>
         <scala.version>2.10.0</scala.version>
         <specs2.version>1.13</specs2.version>
         <apache.http.version>4.2.3</apache.http.version>
         <lift.json.version>2.5-M4</lift.json.version>
         <include.test.regex>**/*Spec*</include.test.regex>
+        <tomcat.port>8090</tomcat.port>
+        <tomcat.version>7.0.11</tomcat.version>
+        <tomcat.log4j>file:///${main.basedir}/src/main/resources/log4j.xml</tomcat.log4j>
+        <tomcat.memory>-Xms256m -Xmx512m</tomcat.memory>
     </properties>
 
     <pluginRepositories>
@@ -133,6 +138,38 @@
                     </includes>
                     <useFile>false</useFile>
                     <forkMode>always</forkMode>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.googlecode.t7mp</groupId>
+                <artifactId>maven-t7-plugin</artifactId>
+                <version>0.9.8.M2A</version>
+                <configuration>
+                    <tomcatHttpPort>${tomcat.port}</tomcatHttpPort>
+                    <tomcatShutdownPort>8095</tomcatShutdownPort>
+                    <tomcatShutdownCommand>SHUTDOWN</tomcatShutdownCommand>
+                    <tomcatVersion>${tomcat.version}</tomcatVersion>
+                    <tomcatSetAwait>true</tomcatSetAwait>
+                    <tomcatConfigDirectory>${basedir}/src/main/tomcat/conf</tomcatConfigDirectory>
+                    <lookInside>false</lookInside>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>log4j.configuration</key>
+                            <value>${tomcat.log4j}</value>
+                        </systemProperty>
+                        <!--<systemProperty>-->
+                        <!--<key>OATC_ENV</key>-->
+                        <!--<value>${system.property.env.value}</value>-->
+                        <!--</systemProperty>-->
+                    </systemProperties>
+                    <webapps>
+                        <webappArtifact>
+                            <groupId>uk.co.tef.global</groupId>
+                            <artifactId>mockRestServices</artifactId>
+                            <version>${project.version}</version>
+                            <contextPath>mockService</contextPath>
+                        </webappArtifact>
+                    </webapps>
                 </configuration>
             </plugin>
         </plugins>

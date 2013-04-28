@@ -6,27 +6,24 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.client.methods.HttpPost
 import akka.actor.{ActorRef, Actor}
 import com.streaming.social.common.Http._
-import com.streaming.social.common.OAuthProvider
-import akka.event.Logging
+import com.streaming.social.common.{Logging, OAuthProvider}
 
+class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorRef) extends Actor with Logging {
 
-class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorRef) extends Actor {
-
-  val log = Logging(context.system, this)
   val httpClient = new DefaultHttpClient
   var idle = true
   val httpPost = new HttpPost(url)
 
   override def postStop() {
     super.postStop()
-    log.info("connector Stopped")
+    info("connector Stopped")
   }
 
   def receive = {
     case StartSream(track) if idle => idle = false; streamByCriteria(track: String)
     case StopStream => idle = true; httpPost.releaseConnection()
     case ReadStream(stream) if !idle => extractBody(stream)
-    case _ => log.error("Action not valid")
+    case _ => error("Action not valid")
   }
 
 
@@ -46,7 +43,7 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
   private def extractBody(instream: InputStream) {
     var br: BufferedReader = new BufferedReader(new InputStreamReader(instream))
     Option(br.readLine) match {
-      case Some(tweet) if (tweet.trim.length == 0 || tweet.contains("\"limit\":{\"track\"")) => log.warning("Ignore it")
+      case Some(tweet) if (tweet.trim.length == 0 || tweet.contains("\"limit\":{\"track\"")) => warn("Ignore it")
       case Some(tweet) => {
         master ! Tweet(tweet)
         self ! ReadStream(instream)

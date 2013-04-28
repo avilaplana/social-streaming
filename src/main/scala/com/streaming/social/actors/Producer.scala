@@ -1,14 +1,13 @@
 package com.streaming.social.actors
 
 import akka.actor.Actor
-import akka.event.Logging
+import com.streaming.social.common.Logging
 
 
-class Producer extends Actor {
-  val log = Logging(context.system, this)
+class Producer extends Actor with Logging{
   def receive = {
-    case tweet : TwitterEvent => log.info("Receiving the tweet : %s".format(tweet))
-    case _ => log.error("Unkown messaege")
+    case tweet : TwitterEvent => info(s"Receiving the tweet : $tweet")
+    case _ => error("Unkown messaege")
   }
 
 }

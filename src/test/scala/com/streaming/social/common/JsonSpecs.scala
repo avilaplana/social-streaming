@@ -10,6 +10,7 @@ class JsonSpecs extends Specification {
     "create a instance of TwitterEvent" in {
       val twitterInstance :TwitterEvent = json.extractJsonToObject(twitterJson)
       twitterInstance.text must_== "This is a exampl of json for the test"
+      twitterInstance.user.profile_image_url must_== "http://a0.twimg.com/profile_images/2995540720/0dfc4bc235fa893150b6865a33b33ed4_normal.jpeg"
     }
   }
 
@@ -51,7 +52,8 @@ class JsonSpecs extends Specification {
         "profile_background_color":"C0DEED",
         "profile_background_image_url":"http:\\/\/a0.twimg.com\/profile_background_images\/834274217\/9c38c969718df0afada448a5db7f5956.jpeg",
         "profile_background_image_url_https":"https:\/\/si0.twimg.com\/profile_background_images\/834274217\/9c38c969718df0afada448a5db7f5956.jpeg",
-        "profile_background_tile":true,"profile_image_url":"http:\/\/a0.twimg.com\/profile_images\/2995540720\/0dfc4bc235fa893150b6865a33b33ed4_normal.jpeg",
+        "profile_background_tile":true,
+        "profile_image_url":"http:\/\/a0.twimg.com\/profile_images\/2995540720\/0dfc4bc235fa893150b6865a33b33ed4_normal.jpeg",
         "profile_image_url_https":"https:\/\/si0.twimg.com\/profile_images\/2995540720\/0dfc4bc235fa893150b6865a33b33ed4_normal.jpeg",
         "profile_banner_url":"https:\/\/si0.twimg.com\/profile_banners\/21775637\/1363107971",
         "profile_link_color":"0084B4",

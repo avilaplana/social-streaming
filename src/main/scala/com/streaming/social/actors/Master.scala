@@ -22,7 +22,7 @@ class Master(oauth: OAuthProvider, url: String) extends Actor with Logging{
   def receive = {
     case StartSream(parameters) => connector ! StartSream(parameters)
     case Tweet(tweet) => extractor ! Tweet(tweet)
-    case TwitterEvent(tweet) => producer ! TwitterEvent(tweet)
+    case TwitterEvent(tweet, user) => producer ! TwitterEvent(tweet, user)
     case StopStream => connector ! StopStream
     case _ => error("Message Unknown")
   }

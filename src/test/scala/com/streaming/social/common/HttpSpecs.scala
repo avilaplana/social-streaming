@@ -11,7 +11,7 @@ class HttpSpecs extends Specification {
     "add set of key=value to body" in {
       val httpPost = new HttpPost()
 
-      addValuePairToBody(httpPost, List(("track1", "value1"), ("track2", "value2")))
+      addValuePairToBody(httpPost, Map("track1"-> "value1", "track2"-> "value2"))
       val body = extractBody(httpPost.getEntity.getContent)
       body.contains("track1=value1") must beTrue
       body.contains("track2=value2") must beTrue

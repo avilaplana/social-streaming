@@ -18,7 +18,7 @@ class MasterResourceInt(oauth: OAuthProvider = registry.oauth, url: String = reg
   def intent = {
     case req@POST(Path(Seg("filter" :: "start" :: track :: Nil))) => {
       info(s"Received request to start stream with track: $track")
-      master ! StartSream(track)
+      master ! StartSream(Map("track" -> track))
       Ok
     }
 

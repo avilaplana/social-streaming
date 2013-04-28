@@ -12,8 +12,8 @@ class TwitterConnectorSpecs extends Specification {
 
       val system = ActorSystem("MySystem")
       val orchestrator = system.actorOf(Props(new Master(oauth, url)), name = "master")
-      orchestrator ! StartSream("obama")
-      Thread.sleep(2000000)
+      orchestrator ! StartSream(Map("track" -> "obama"))
+      Thread.sleep(5000)
       orchestrator ! StopStream
 
     }

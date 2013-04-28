@@ -12,8 +12,8 @@ object OAuthProvider{
 
 class OAuthProvider(method: String, urlToRequest: String, consumerKey: String, consumerSecret: String, oauthToken: String, oauthTokenSecrete: String) {
 
-  def getOAuthHeader(filterTrack : String)  = {
-        val headers : Map[String,String] =  sign(filterTrack)
+  def getOAuthHeader(parameters : Map[String, String])  = {
+        val headers : Map[String,String] =  sign(parameters)
         val buffer = new StringBuilder()
         buffer.append("OAuth ")
         headers.init.foreach(entry => buffer.append(entry._1).append("=").append("\"").append(URLEncoder.encode(entry._2, "UTF-8")).append("\"").append(",").append(" "))
@@ -21,10 +21,10 @@ class OAuthProvider(method: String, urlToRequest: String, consumerKey: String, c
         Map("Authorization" -> buffer.toString())
       }
 
-  private def sign(filterTrack : String) = {
+  private def sign(parameters : Map[String, String]) = {
     OAuth.sign(method,
       url = urlToRequest,
-      user_params = Map("track"-> filterTrack),
+      user_params = parameters,
       consumer = Consumer(key = consumerKey,
                           secret = consumerSecret),
       token = Token(Map("oauth_token"-> oauthToken,

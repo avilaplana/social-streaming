@@ -20,17 +20,17 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
   }
 
   def receive = {
-    case StartSream(track) if idle => idle = false; streamByCriteria(track: String)
+    case StartSream(parameters) if idle => idle = false; streamByCriteria(parameters)
     case StopStream => idle = true; httpPost.releaseConnection()
     case ReadStream(stream) if !idle => extractBody(stream)
     case _ => error("Action not valid")
   }
 
 
-  private def streamByCriteria(track: String) {
+  private def streamByCriteria(parameters: Map[String,String]) {
 
-    addHeader(httpPost, oAuthProvider.getOAuthHeader(track))
-    val httpResponse = httpClient.execute(addValuePairToBody(httpPost, List(("track", track))))
+    addHeader(httpPost, oAuthProvider.getOAuthHeader(parameters))
+    val httpResponse = httpClient.execute(addValuePairToBody(httpPost, parameters))
     httpResponse.getStatusLine.getStatusCode match {
       case 200 => self ! ReadStream(httpResponse.getEntity.getContent)
       case _ => {

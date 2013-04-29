@@ -2,6 +2,8 @@ package com.streaming.social.common
 
 import org.specs2.mutable.Specification
 import com.streaming.social.actors.TwitterEvent
+import java.util.{TimeZone, Calendar, Date}
+
 class JsonSpecs extends Specification {
 
   val json = new Json[TwitterEvent]()
@@ -11,6 +13,7 @@ class JsonSpecs extends Specification {
       val twitterInstance :TwitterEvent = json.extractJsonToObject(twitterJson)
       twitterInstance.text must_== "This is a exampl of json for the test"
       twitterInstance.user.profile_image_url must_== "http://a0.twimg.com/profile_images/2995540720/0dfc4bc235fa893150b6865a33b33ed4_normal.jpeg"
+      twitterInstance.created_at must_!= null
     }
   }
 

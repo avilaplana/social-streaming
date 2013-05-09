@@ -22,4 +22,4 @@ stacktrace.log
 **/lib_managed/*
 sbt
 sbt-launcher.jar
-project/*
+project/target

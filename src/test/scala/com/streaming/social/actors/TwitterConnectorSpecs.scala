@@ -11,7 +11,7 @@ class TwitterConnectorSpecs extends Specification {
     "get the streaming content from Twitter" in {
 
       val system = ActorSystem("MySystem")
-      val orchestrator = system.actorOf(Props(new Master(oauth, url)), name = "master")
+      val orchestrator = system.actorOf(Props(new Master(oauth, producerStrategy, url)), name = "master")
       orchestrator ! StartSream(Map("track" -> "obama"))
       Thread.sleep(5000)
       orchestrator ! StopStream

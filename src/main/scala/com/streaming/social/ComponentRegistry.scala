@@ -1,6 +1,7 @@
 package com.streaming.social
 
 import common.OAuthProvider
+import mq.MQProducer
 
 
 object ComponentRegistry {
@@ -12,8 +13,10 @@ class ComponentRegistry {
   val oauth = OAuthProvider(
     method = "POST",
     urlToRequest = url,
-    consumerKey = "DEFINE CONSUMER KEY",
-    consumerSecret = "DEFINE CONSUMER SECRET",
-    oauthToken = "DEFINE OAUTH TOKEN",
-    oauthTokenSecrete = "DEFINE OAUTH SECRET")
+    consumerKey = "AAAAAA",
+    consumerSecret = "AAAAA",
+    oauthToken = "AAAAAA",
+    oauthTokenSecrete = "AAAAAA")
+  val producerStrategy = MQProducer()
+
 }

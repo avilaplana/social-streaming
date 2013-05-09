@@ -2,11 +2,12 @@ package com.streaming.social.actors
 
 import akka.actor.Actor
 import com.streaming.social.common.Logging
+import com.streaming.social.mq.ProducerAdaptor
 
 
-class Producer extends Actor with Logging{
+class Producer(producerStrategy : ProducerAdaptor[String]) extends Actor with Logging{
   def receive = {
-    case tweet : TwitterEvent => info(s"Receiving the tweet : $tweet")
+    case tweet : TwitterEvent => producerStrategy.send(tweet.text)
     case _ => error("Unkown messaege")
   }
 

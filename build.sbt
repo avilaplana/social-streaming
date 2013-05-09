@@ -4,6 +4,10 @@ version := "1.0"
 
 scalaVersion := "2.10.0"
 
+seq(webSettings :_*)
+
+libraryDependencies += "org.mortbay.jetty" % "jetty" % "6.1.22" % "container"
+
 libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.0" % "compile"
 
 libraryDependencies += "javax.servlet" % "servlet-api" % "2.5" % "provided"
@@ -26,4 +30,7 @@ libraryDependencies += "log4j" % "log4j" % "1.2.17" % "compile"
 
 libraryDependencies += "net.liftweb" % "lift-json_2.10" % "2.5-M4" % "compile"
 
+libraryDependencies +=  "com.rabbitmq" % "amqp-client" % "3.0.4" % "compile"
+
 libraryDependencies += "org.specs2" % "specs2_2.10" % "1.13" % "test"
+

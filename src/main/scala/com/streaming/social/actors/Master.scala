@@ -2,9 +2,10 @@ package com.streaming.social.actors
 
 import akka.actor.{ActorSystem, Props, Actor}
 import com.streaming.social.common.{Logging, OAuthProvider}
+import com.streaming.social.mq.ProducerAdaptor
 
 
-class Master(oauth: OAuthProvider, url: String) extends Actor with Logging{
+class Master(oauth: OAuthProvider, producerStrategy : ProducerAdaptor[String], url: String) extends Actor with Logging{
 
   val master = ActorSystem("master")
 
@@ -16,7 +17,7 @@ class Master(oauth: OAuthProvider, url: String) extends Actor with Logging{
 
   val extractor = master.actorOf(Props(new TwitterExtractor), name = "extractor")
 
-  val producer = master.actorOf(Props(new Producer), name = "producer")
+  val producer = master.actorOf(Props(new Producer(producerStrategy)), name = "producer")
 
 
   def receive = {

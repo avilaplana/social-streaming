@@ -32,5 +32,7 @@ libraryDependencies += "net.liftweb" % "lift-json_2.10" % "2.5-M4" % "compile"
 
 libraryDependencies +=  "com.rabbitmq" % "amqp-client" % "3.0.4" % "compile"
 
+libraryDependencies += "org.skife.com.typesafe.config" % "typesafe-config" % "0.3.0" % "compile"
+
 libraryDependencies += "org.specs2" % "specs2_2.10" % "1.13" % "test"
 

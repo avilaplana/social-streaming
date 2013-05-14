@@ -20,6 +20,6 @@ target
 stacktrace.log
 .history
 **/lib_managed/*
-sbt
-sbt-launcher.jar
-project/target
+**/sbt
+**/sbt-launcher.jar
+**/project/target

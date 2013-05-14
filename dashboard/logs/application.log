@@ -1,0 +1,12 @@
+2013-05-14 10:59:12,176 - [INFO] - from play in main 
+Listening for HTTP on /0.0.0.0:9000
+
+2013-05-14 10:59:23,612 - [INFO] - from play in New I/O worker #1 
+Starting application default Akka system.
+
+2013-05-14 10:59:23,622 - [INFO] - from play in New I/O worker #1 
+Application started (Dev)
+
+2013-05-14 11:05:51,832 - [INFO] - from play in main 
+Shutdown application default Akka system.
+

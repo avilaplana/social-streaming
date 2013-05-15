@@ -1,12 +1,36 @@
-2013-05-14 10:59:12,176 - [INFO] - from play in main 
+2013-05-15 10:33:52,626 - [INFO] - from play in main 
 Listening for HTTP on /0.0.0.0:9000
 
-2013-05-14 10:59:23,612 - [INFO] - from play in New I/O worker #1 
+2013-05-15 10:34:57,841 - [INFO] - from play in New I/O worker #1 
 Starting application default Akka system.
 
-2013-05-14 10:59:23,622 - [INFO] - from play in New I/O worker #1 
+2013-05-15 10:34:57,862 - [INFO] - from play in New I/O worker #1 
 Application started (Dev)
 
-2013-05-14 11:05:51,832 - [INFO] - from play in main 
+2013-05-15 10:34:57,943 - [ERROR] - from com.streaming.dashboard.actor.Consumer in application-akka.actor.default-dispatcher-3 
+Connection refused
+java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.7.0_13]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339) ~[na:1.7.0_13]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200) ~[na:1.7.0_13]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182) ~[na:1.7.0_13]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:391) ~[na:1.7.0_13]
+	at java.net.Socket.connect(Socket.java:579) ~[na:1.7.0_13]
+	at com.rabbitmq.client.ConnectionFactory.createFrameHandler(ConnectionFactory.java:445) ~[amqp-client-2.8.1.jar:na]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:504) ~[amqp-client-2.8.1.jar:na]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:533) ~[amqp-client-2.8.1.jar:na]
+	at com.streaming.dashboard.actor.Consumer.startReceving(Consumer.scala:17) ~[classes/:na]
+	at com.streaming.dashboard.actor.Consumer$$anonfun$receive$1.applyOrElse(Consumer.scala:9) ~[classes/:na]
+	at akka.actor.ActorCell.receiveMessage(ActorCell.scala:425) [akka-actor_2.10.jar:na]
+	at akka.actor.ActorCell.invoke(ActorCell.scala:386) [akka-actor_2.10.jar:na]
+	at akka.dispatch.Mailbox.processMailbox(Mailbox.scala:230) [akka-actor_2.10.jar:na]
+	at akka.dispatch.Mailbox.run(Mailbox.scala:212) [akka-actor_2.10.jar:na]
+	at akka.dispatch.ForkJoinExecutorConfigurator$MailboxExecutionTask.exec(AbstractDispatcher.scala:502) [akka-actor_2.10.jar:na]
+	at scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:262) [scala-library.jar:na]
+	at scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:975) [scala-library.jar:na]
+	at scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1478) [scala-library.jar:na]
+	at scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:104) [scala-library.jar:na]
+
+2013-05-15 10:35:24,876 - [INFO] - from play in main 
 Shutdown application default Akka system.
 

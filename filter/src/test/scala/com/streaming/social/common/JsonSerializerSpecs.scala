@@ -4,9 +4,9 @@ import org.specs2.mutable.Specification
 import com.streaming.social.actors.TwitterEvent
 import java.util.{TimeZone, Calendar, Date}
 
-class JsonSpecs extends Specification {
+class JsonSerializerSpecs extends Specification {
 
-  val json = new Json[TwitterEvent]()
+  val json = new JsonDeserializer[TwitterEvent]()
 
   "desirialized json" should {
     "create a instance of TwitterEvent" in {

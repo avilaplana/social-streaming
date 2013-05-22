@@ -23,3 +23,4 @@ stacktrace.log
 **/sbt
 **/sbt-launcher.jar
 **/project/target
+**/logs/*

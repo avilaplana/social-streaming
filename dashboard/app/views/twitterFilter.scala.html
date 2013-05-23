@@ -2,18 +2,27 @@
 
 @main(Some(socketIndentifier)) {
 <br><br><br>
-<br><br><br>
 
-<div   class="pull-right">
+<div class="pull-left">
     <input id="filter" name="filter" class="input-small" type="text" placeholder="Filter">
     <button id="start" class="btn" type="submit">Start</button>
 </div>
-<!--<div class="result" style="border: 1px solid black; padding: 5px;">not sent yet...</div>-->
-
-<br><br><br>
-<div class="pull-right">
+<div class="pull-left">
     <button id="stop" class="btn" type="submit">Stop</button>
 </div>
+<div class="pull-right">
+    Filter by Language
+    <Language></Language>
+    <select id="filterByLanguage">
+        <option selected>No filter</option>
+        <option value="es">Spanish</option>
+        <option value="en">English</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="it">Italian</option>
+    </select>
+</div>
+<!--<div class="result" style="border: 1px solid black; padding: 5px;">not sent yet...</div>-->
 
 <div id="onChat" class="row">
     <div class="span10" id="main">
@@ -28,6 +37,7 @@
 
     $(function () {
 
+        $('#stop').hide()
         var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
         var chatSocket = new WS("@routes.Application.stream(socketIndentifier).webSocketURL()")
 
@@ -54,14 +64,15 @@
             // Create the message element
 
             if (data.tweet != null) {
-                var el = $('<div class="message" ><img id="url" src=""/> ' +
+                var el = $('<div class="message" ><span id="tweeterUser"></span><br><img id="url" src=""/> ' +
                         '                        <span id="tweet"></span>' +
-                        '<br><span id="created_at"></span>' +
-                        '<span id="tweeterUser"></span>' +
+                        '<span id="created_at"></span> ' +
+                        '<span id="lang"></span>' +
                         '</div>')
                 $("#tweet", el).text(data.tweet)
                 $("#created_at", el).text(data.created_at)
                 $("#tweeterUser", el).text(data.tweeterUser)
+                $("#lang", el).text(data.lang)
                 $("#url", el).attr("src", data.url)
                 $('#messages').prepend(el)
             } else {
@@ -81,24 +92,34 @@
     })
 
 
-
     jQuery("#start").click(
-                   function () {
-                       $.get("@routes.Application.startFilter()",{'filter':$("#filter").val()}, function (data) {
-                           $('#perete').html(data);
-                       });
-                       return false;
-                   }
-           )
+            function () {
+                $('#stop').show()
+                $('#start').hide()
+                $('#filter').hide()
+                if ($("#filterByLanguage").val() == 'No filter')
+                    $.get("@routes.Application.startFilter()", {'filter': $("#filter").val()}, function (data) {
+                        $('#perete').html(data);
+                    });
+                else
+                    $.get("@routes.Application.startFilter()", {'language': $("#filterByLanguage").val(), 'filter': $("#filter").val()}, function (data) {
+                                            $('#perete').html(data);
+                                        });
+                return false;
+            }
+    )
 
     jQuery("#stop").click(
-                       function () {
-                           $.get("@routes.Application.stopFilter()", function (data) {
-                               $('.result').html(data);
-                           });
-                           return false;
-                       }
-               )
+            function () {
+                $('#start').show()
+                $('#filter').show()
+                $('#stop').hide()
+                $.get("@routes.Application.stopFilter()", function (data) {
+                    $('.result').html(data);
+                });
+                return false;
+            }
+    )
 
 </script>
 

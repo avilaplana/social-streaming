@@ -21,6 +21,7 @@ stacktrace.log
 .history
 **/lib_managed/*
 **/sbt
+**/logs/*
 **/sbt-launcher.jar
 **/project/target
 **/logs/*

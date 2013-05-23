@@ -5,7 +5,7 @@
 # Home page
 GET     /                               controllers.Application.index
 GET     /room/stream                    controllers.Application.stream(socketIdentifier)
-GET     /room/filter/start              controllers.Application.startFilter(filter: Option[String] ?= None)
+GET     /room/filter/start              controllers.Application.startFilter(language: Option[String] ?= None, filter: Option[String] ?= None)
 GET     /room/filter/stop               controllers.Application.stopFilter()
 
 # Map static resources from the /public folder to the /assets URL path

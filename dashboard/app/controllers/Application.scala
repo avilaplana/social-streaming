@@ -9,7 +9,8 @@ import concurrent.Future
 import play.api.libs.ws.WS
 import play.api.libs.ws
 import java.util.UUID
-import com.streaming.dashboard.actor.Master
+import com.streaming.dashboard.actor.{FilterByLanguage, Master}
+import java.net.URLEncoder
 
 object Application extends Controller {
 
@@ -30,12 +31,14 @@ object Application extends Controller {
 
   }
 
-  def startFilter(filter: Option[String]) = Action {
+  def startFilter(language: Option[String], filter: Option[String]) = Action {
     implicit request =>
       filter.filterNot(_.isEmpty).map {
-        username =>
+        item =>
+          Master.default ! FilterByLanguage(language)
           val result: Future[ws.Response] = {
-            WS.url(s"http://localhost:8080/filter/start/$username").post("")
+            val encodedItem = URLEncoder.encode(item, "UTF-8")
+            WS.url(s"http://localhost:8080/filter/start/$encodedItem").post("")
           }
           Ok("Starting..........")
       }.getOrElse {

@@ -7,6 +7,7 @@ import unfiltered.response.Ok
 import com.streaming.social.common.{Logging, OAuthProvider}
 import com.streaming.social.registry
 import com.streaming.social.mq.ProducerAdaptor
+import java.net.URLDecoder
 
 class MasterResource extends MasterResourceInt
 
@@ -18,8 +19,9 @@ class MasterResourceInt(oauth: OAuthProvider = registry.oauth, producerStrategy 
 
   def intent = {
     case req@POST(Path(Seg("filter" :: "start" :: track :: Nil))) => {
-      info(s"Received request to start stream with track: $track")
-      master ! StartSream(Map("track" -> track))
+      val trackDecoded = URLDecoder.decode(track.asInstanceOf[String], "UTF-8")
+      info(s"Received request to start stream with track: $trackDecoded")
+      master ! StartSream(Map("track" -> trackDecoded))
       Ok
     }
 

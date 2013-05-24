@@ -35,7 +35,7 @@ class Consumer(master: ActorRef) extends Actor with Logging {
     val delivery = consumer.nextDelivery();
     val msg = new String(delivery.getBody());
     val event = new JsonDeserializer().extractJsonToObject(msg)
-    if ((languageToFilterBy.isDefined && event.lang.equals(languageToFilterBy.get))
+    if ((languageToFilterBy.isDefined && event.lang.isDefined && event.lang == languageToFilterBy)
       || (languageToFilterBy.isEmpty)) master ! event
     self ! ConsumeMessage(consumer)
   }
@@ -46,6 +46,6 @@ trait Message
 
 case class ConsumeMessage(consumer: QueueingConsumer) extends Message
 
-case class TwitterEvent(val text: String, val created_at: Date, val lang: String, val user: User) extends Message
+case class TwitterEvent(val text: String, val created_at: Date, val lang: Option[String], val user: User) extends Message
 
 case class User(val profile_image_url: String, val screen_name: String)

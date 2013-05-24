@@ -17,7 +17,7 @@ class JsonDeserializerSpecs extends Specification {
       val json = serializer.extractObjectToJson(TwitterEvent(
         text = "this is a test",
         created_at = cal.getTime,
-        lang = "en",
+        lang = Some("en"),
         User(profile_image_url = "http://test.com/images/test.jpg",
              screen_name = "testuser")))
 

@@ -89,7 +89,7 @@ class Master() extends Actor {
           "user" -> JsString("alvaro"),
           "tweet" -> JsString(twitterEvent.text),
           "created_at" -> JsString(twitterEvent.created_at.toString),
-          "lang" -> JsString(twitterEvent.lang),
+          "lang" -> JsString(twitterEvent.lang.getOrElse("undefined")),
           "tweeterUser" -> JsString(twitterEvent.user.screen_name),
           "url" -> JsString(twitterEvent.user.profile_image_url),
           "members" -> JsArray(

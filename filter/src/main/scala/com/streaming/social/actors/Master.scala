@@ -21,10 +21,10 @@ class Master(oauth: OAuthProvider, producerStrategy : ProducerAdaptor[String], u
 
 
   def receive = {
-    case StartSream(parameters) => connector ! StartSream(parameters)
+    case AddFilter(parameters) => connector ! AddFilter(parameters)
     case Tweet(tweet) => extractor ! Tweet(tweet)
     case TwitterEvent(tweet, created_at, lang, user) => producer ! TwitterEvent(tweet, created_at, lang, user)
-    case StopStream => connector ! StopStream
+    case RemoveFilter(parameters) => connector ! RemoveFilter(parameters)
     case _ => error("Message Unknown")
   }
 }

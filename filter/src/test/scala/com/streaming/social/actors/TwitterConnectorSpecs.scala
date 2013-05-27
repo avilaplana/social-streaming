@@ -8,22 +8,49 @@ import java.net.URLEncoder
 
 class TwitterConnectorSpecs extends Specification {
 
-  val dummyProducer = new ProducerAdaptor[String] {
-    def send(message: String) {
-      println(s"Message to be sent is $message")
-    }
-  }
-  "call streamByCriteria" should {
+
+  "start streaming with one filter" should {
     "get the streaming content from Twitter" in {
+
+      val dummyProducer = new ProducerAdaptor[String] {
+        def send(message: String) {
+          println(message)
+        }
+      }
 
       val system = ActorSystem("MySystem")
       val orchestrator = system.actorOf(Props(new Master(oauth, dummyProducer, url)), name = "master")
       val encodedFilterBy = URLEncoder.encode("real madrid", "UTF-8")
       println(encodedFilterBy)
-      orchestrator ! StartSream(Map("track" -> "real madrid"))
-      Thread.sleep(40000)
-      orchestrator ! StopStream
+      orchestrator ! AddFilter(Map("track" -> "real madrid"))
+      Thread.sleep(10000)
+      orchestrator ! RemoveFilter(Map("track" -> "real madrid"))
+    }
+  }
 
+  "start streaming with two filter" should {
+    "get the streaming content from Twitter" in {
+
+      var filterToCheck = "real madrid"
+      val dummyProducer = new ProducerAdaptor[String] {
+        def send(message: String) {
+          println(message)
+        }
+      }
+
+      val system = ActorSystem("MySystem")
+      val orchestrator = system.actorOf(Props(new Master(oauth, dummyProducer, url)), name = "master")
+      val encodedFilterBy = URLEncoder.encode("real madrid", "UTF-8")
+      println(encodedFilterBy)
+      orchestrator ! AddFilter(Map("track" -> "real madrid"))
+      Thread.sleep(10000)
+      orchestrator ! AddFilter(Map("track" -> "mourinho"))
+      filterToCheck = "mourinho"
+      Thread.sleep(10000)
+      orchestrator ! RemoveFilter(Map("track" -> "mourinho"))
+      filterToCheck = "real madrid"
+      Thread.sleep(10000)
+      orchestrator ! RemoveFilter(Map("track" -> "real madrid"))
     }
   }
 

@@ -10,7 +10,7 @@
     </appender>
 
     <appender name="socialStreamingAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="file" value="/tmp/socialStreaming.log"/>
+        <param name="file" value="/tmp/filer.log"/>
         <param name="MaxFileSize" value="20MB"/>
         <param name="MaxBackupIndex" value="10"/>
         <layout class="org.apache.log4j.PatternLayout">
@@ -19,7 +19,7 @@
     </appender>
 
     <appender name="socialStreamingErrorAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="file" value="/tmp/socialStreamingError.log"/>
+        <param name="file" value="/tmp/filter.log"/>
         <param name="MaxFileSize" value="20MB"/>
         <param name="MaxBackupIndex" value="10"/>
         <layout class="org.apache.log4j.PatternLayout">

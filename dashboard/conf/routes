@@ -4,7 +4,8 @@
 
 # Home page
 GET     /                               controllers.Application.index
-GET     /room/stream                    controllers.Application.stream(socketIdentifier)
+GET     /room                           controllers.Application.socialRoom(username: Option[String])
+GET     /room/stream                    controllers.Application.stream(username)
 GET     /room/filter/start              controllers.Application.startFilter(language: Option[String] ?= None, filter: Option[String] ?= None)
 GET     /room/filter/stop               controllers.Application.stopFilter()
 

@@ -31,6 +31,7 @@ class Consumer(master: ActorRef) extends Actor with Logging {
     self ! ConsumeMessage(consumer)
   }
 
+  // todo the consumer does not know anything about filtering. It is not responsible
   def consumeMessage(consumer: QueueingConsumer) {
     val delivery = consumer.nextDelivery();
     val msg = new String(delivery.getBody());

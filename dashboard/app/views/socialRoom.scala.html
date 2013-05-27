@@ -1,6 +1,6 @@
-@(socketIndentifier: String)(implicit request: RequestHeader)
+@(username: String)(implicit request: RequestHeader)
 
-@main(Some(socketIndentifier)) {
+@main(Some(username)) {
 <br><br><br>
 
 <div class="pull-left">
@@ -39,7 +39,7 @@
 
         $('#stop').hide()
         var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-        var chatSocket = new WS("@routes.Application.stream(socketIndentifier).webSocketURL()")
+        var chatSocket = new WS("@routes.Application.stream(username).webSocketURL()")
 
         var sendMessage = function () {
             chatSocket.send(JSON.stringify(
@@ -81,7 +81,7 @@
 
                 $("p", el).text(data.message)
                 $(el).addClass(data.kind)
-                if (data.user == '@socketIndentifier') $(el).addClass('me')
+                if (data.user == '@username') $(el).addClass('me')
                 $('#messages').append(el)
             }
 

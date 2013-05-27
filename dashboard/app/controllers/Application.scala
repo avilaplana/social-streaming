@@ -11,23 +11,37 @@ import play.api.libs.ws
 import java.util.UUID
 import com.streaming.dashboard.actor.{FilterByLanguage, Master}
 import java.net.URLEncoder
+import com.streaming.dashboard.common.Logging
 
-object Application extends Controller {
+object Application extends Controller with Logging {
 
   /**
    * Just display the home page.
    */
   def index = Action {
     implicit request =>
-      Ok(views.html.twitterFilter(UUID.randomUUID().toString))
+      Ok(views.html.index())
+  }
+
+  def socialRoom(username: Option[String]) = Action {
+    implicit request =>
+      username.filterNot(_.isEmpty).map {
+        username =>
+          Ok(views.html.socialRoom(username))
+      }.getOrElse {
+        Redirect(routes.Application.index).flashing(
+          "error" -> "Please choose a valid username."
+        )
+      }
   }
 
   /**
    * Handles the chat websocket.
    */
-  def stream(socketIdentifier: String) = WebSocket.async[JsValue] {
+  def stream(username: String) = WebSocket.async[JsValue] {
     request =>
-      Master.join(socketIdentifier)
+      info(s"Websocket connection with id is $username")
+      Master.join(username)
 
   }
 

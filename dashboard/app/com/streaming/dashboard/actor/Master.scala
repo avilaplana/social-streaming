@@ -12,7 +12,7 @@ import akka.pattern.ask
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 import com.streaming.dashboard.common.Logging
-import java.util.Date
+import collection.mutable.ListBuffer
 
 object Master extends Logging {
 
@@ -24,9 +24,9 @@ object Master extends Logging {
     master
   }
 
-  def filterByLanguage(language: Option[String]) {
-    default ! FilterByLanguage(language)
-  }
+  //  def filterByLanguage(language: Option[String]) {
+  //    default ! AddFilter(language)
+  //  }
 
   def join(username: String): scala.concurrent.Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
@@ -54,6 +54,8 @@ class Master() extends Actor with Logging {
 
   val consumerActor = Akka.system.actorOf(Props(new Consumer(self)), "consumer")
   var connected = Map.empty[String, Concurrent.Channel[JsValue]]
+  var filterMap = Map.empty[String, ListBuffer[String]]
+  var languageMap = Map.empty[String, ListBuffer[String]]
 
   def receive = {
 
@@ -72,13 +74,47 @@ class Master() extends Actor with Logging {
 
     case StartConsumer => consumerActor ! StartConsumer
 
-      // todo add here the username to apply filter to
-      // todo the filter is in username level so the master is responsible of that
-    case FilterByLanguage(language) => {
-      consumerActor ! FilterByLanguage(language)
+    case AddFilter(username, filter, language) => {
+      filterMap.get(filter) match {
+        case Some(usernames) if !(usernames.contains(username)) =>  filterMap = filterMap + (filter -> (usernames += username))
+        case Some(usernames) if (usernames.contains(username)) =>  debug(s"Username: $username has already filter $filter")
+        case None => filterMap = filterMap + (filter -> ListBuffer(username))
+      }
+
+      language match {
+        case Some(lang) => {
+          languageMap.contains(lang) match {
+            case true => languageMap = languageMap + (lang -> (languageMap.get(lang).get += username))
+            case false => languageMap = languageMap + (lang -> ListBuffer(username))
+          }
+        }
+        case _ =>
+      }
+    }
+
+    case RemoveFilter(username, filter, language) => {
+      filterMap.get(filter) match {
+        case Some(usernames) if (usernames.contains(username)) => filterMap = filterMap + (filter -> (usernames -= username))
+        case Some(usernames) if !(usernames.contains(username)) => debug(s"Username: $username has no a filter $filter")
+        case _ => debug("")
+      }
+
+      language match {
+        case Some(lang) => {
+          languageMap.get(lang) match {
+            case Some(usernames) if (usernames.contains(username)) => languageMap = languageMap + (lang -> (usernames -= username))
+            case Some(usernames) if !(usernames.contains(username)) => debug(s"Username: $username has no a filter by language $lang")
+            case _ =>
+          }
+        }
+        case _ =>
+      }
+
     }
 
     case twitterEvent: TwitterEvent =>
+      var candidates = filterMap.filter(element => twitterEvent.text.toLowerCase().contains(element._1.toLowerCase()))
+
       val msg = JsObject(
         Seq(
           "user" -> JsString("alvaro"),
@@ -89,7 +125,10 @@ class Master() extends Actor with Logging {
           "url" -> JsString(twitterEvent.user.profile_image_url)
         )
       )
-      connected.get("alvaro").get.push(msg)
+      //todo flatmap?
+      candidates.values.foreach(usernames => usernames.foreach(username => connected.get(username).get.push(msg)))
+
+
   }
 }
 
@@ -105,4 +144,6 @@ case class Connected(enumerator: Enumerator[JsValue])
 
 case class CannotConnect(msg: String)
 
-case class FilterByLanguage(language: Option[String])
+case class AddFilter(username: String, filter: String, language: Option[String] = None)
+
+case class RemoveFilter(username: String, filter: String, language: Option[String] = None)

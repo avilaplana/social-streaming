@@ -98,13 +98,13 @@
                 $('#start').hide()
                 $('#filter').hide()
                 if ($("#filterByLanguage").val() == 'No filter')
-                    $.get("@routes.Application.startFilter()", {'filter': $("#filter").val()}, function (data) {
+                    $.get("@routes.Application.startFilter()", {'username': 'alvaro', 'filter': $("#filter").val()}, function (data) {
                         $('#perete').html(data);
                     });
                 else
-                    $.get("@routes.Application.startFilter()", {'language': $("#filterByLanguage").val(), 'filter': $("#filter").val()}, function (data) {
-                                            $('#perete').html(data);
-                                        });
+                    $.get("@routes.Application.startFilter()", {'username': 'alvaro', 'filter': $("#filter").val(), 'language': $("#filterByLanguage").val()}, function (data) {
+                        $('#perete').html(data);
+                    });
                 return false;
             }
     )
@@ -114,9 +114,14 @@
                 $('#start').show()
                 $('#filter').show()
                 $('#stop').hide()
-                $.get("@routes.Application.stopFilter()", function (data) {
-                    $('.result').html(data);
-                });
+                if ($("#filterByLanguage").val() == 'No filter')
+                    $.get("@routes.Application.stopFilter()", {'username': 'alvaro', 'filter': $("#filter").val()}, function (data) {
+                        $('#perete').html(data);
+                    });
+                else
+                    $.get("@routes.Application.stopFilter()", {'username': 'alvaro', 'filter': $("#filter").val(), 'language': $("#filterByLanguage").val()}, function (data) {
+                        $('#perete').html(data);
+                    });
                 return false;
             }
     )

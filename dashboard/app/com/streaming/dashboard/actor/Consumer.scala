@@ -14,7 +14,6 @@ class Consumer(master: ActorRef) extends Actor with Logging {
   def receive = {
     case StartConsumer => configureConnection
     case ConsumeMessage(consumer) => consumeMessage(consumer)
-    case FilterByLanguage(language) => languageToFilterBy = language
   }
 
 
@@ -31,13 +30,11 @@ class Consumer(master: ActorRef) extends Actor with Logging {
     self ! ConsumeMessage(consumer)
   }
 
-  // todo the consumer does not know anything about filtering. It is not responsible
   def consumeMessage(consumer: QueueingConsumer) {
     val delivery = consumer.nextDelivery();
     val msg = new String(delivery.getBody());
     val event = new JsonDeserializer().extractJsonToObject(msg)
-    if ((languageToFilterBy.isDefined && event.lang.isDefined && event.lang == languageToFilterBy)
-      || (languageToFilterBy.isEmpty)) master ! event
+    master ! event
     self ! ConsumeMessage(consumer)
   }
 }

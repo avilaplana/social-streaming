@@ -16,7 +16,7 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
   var sessionId: Option[String] = None
 
   var httpPost = new HttpPost(url)
-  val filtersToApply = mutable.HashSet.empty[String]
+  val filtersToApply = mutable.HashMap.empty[String, Integer]
 
   override def postStop() {
     super.postStop()
@@ -29,40 +29,47 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
       debug(s"Adding to the streaming $track to $filtersToApply")
       filtersToApply.isEmpty match {
         case false => {
-          filtersToApply.contains(track.asInstanceOf[String].toLowerCase()) match {
-            case false => {
-              filtersToApply += track.asInstanceOf[String].toLowerCase()
+          filtersToApply.get(track.asInstanceOf[String].toLowerCase()) match {
+            case Some(numberReq) => filtersToApply += (track.asInstanceOf[String].toLowerCase() -> (numberReq + 1)); debug(s"$track already exists in $filtersToApply")
+            case None => {
+              filtersToApply += (track.asInstanceOf[String].toLowerCase() -> 1)
               httpPost.releaseConnection()
               sessionId = Some(UUID.randomUUID().toString)
-              streamByCriteria(Map("track" -> filtersToApply.mkString(",")), sessionId)
+              info(s"filter is $filtersToApply")
+              streamByCriteria(Map("track" -> filtersToApply.keys.mkString(",")), sessionId)
             }
-            case true => debug(s"$track already exists in $filtersToApply")
           }
         }
         case true => {
-          filtersToApply += track.asInstanceOf[String].toLowerCase()
+          filtersToApply += (track.asInstanceOf[String].toLowerCase() -> 1)
           sessionId = Some(UUID.randomUUID().toString)
-          streamByCriteria(Map("track" -> filtersToApply.mkString(",")), sessionId)
+          streamByCriteria(Map("track" -> filtersToApply.keys.mkString(",")), sessionId)
         }
       }
     }
     case RemoveFilter(parameters) => {
       val track = parameters.get("track").getOrElse(throw new RuntimeException)
-      filtersToApply.contains(track.asInstanceOf[String].toLowerCase()) match {
-        case true => {
-          debug(s"Removing from the streaming $track from $filtersToApply")
-          filtersToApply -= track.asInstanceOf[String].toLowerCase()
+      filtersToApply.get(track.asInstanceOf[String].toLowerCase()) match {
+        case Some(numberReq) => {
+          if (numberReq > 1) {
+            filtersToApply += (track.asInstanceOf[String].toLowerCase() -> (numberReq - 1))
+            debug(s"Substracting in 1 $track from the streaming from $filtersToApply")
+          } else {
+            filtersToApply -= track.asInstanceOf[String].toLowerCase()
+            debug(s"Substracting $track from the streaming from $filtersToApply")
+          }
+
           val message = filtersToApply.isEmpty match {
             case true => StopStream
             case false => {
               httpPost.releaseConnection()
               sessionId = Some(UUID.randomUUID().toString)
-              streamByCriteria(Map("track" -> filtersToApply.mkString(",")), sessionId)
+              streamByCriteria(Map("track" -> filtersToApply.keys.mkString(",")), sessionId)
             }
           }
           self ! message
         }
-        case false => info(s"$track does not exists");
+        case None => debug(s"$track does not exists");
       }
     }
 

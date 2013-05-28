@@ -69,7 +69,17 @@ class Master() extends Actor with Logging {
     }
 
     case Quit(username) => {
+
       connected = connected - username
+      languageMap = languageMap - username
+      val filterEntry = filterMap.filter(entry => entry._2.contains(username))
+      filterEntry.foreach{entry =>
+        val usernames = entry._2
+        if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
+        else filterMap = filterMap - entry._1
+      }
+      debug(s"Username $username quitted,removing data $filterMap, $languageMap")
+
     }
 
     case StartConsumer => consumerActor ! StartConsumer

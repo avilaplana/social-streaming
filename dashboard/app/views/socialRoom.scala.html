@@ -1,7 +1,6 @@
 @(username: String)(implicit request: RequestHeader)
 
 @main(Some(username)) {
-<br><br><br>
 
 <div class="pull-left">
     <input id="filter" name="filter" class="input-small" type="text" placeholder="Filter">
@@ -23,12 +22,12 @@
     </select>
 </div>
 <!--<div class="result" style="border: 1px solid black; padding: 5px;">not sent yet...</div>-->
-
+<br><br><br><br>
 <div id="onChat" class="row">
-    <div class="span10" id="main">
-        <div id="messages">
-        </div>
+<div class="span10" id="main">
+    <div id="twitter">
     </div>
+</div>
 </div>
 
 
@@ -64,7 +63,7 @@
             // Create the message element
 
             if (data.tweet != null) {
-                var el = $('<div class="message" ><span id="tweeterUser"></span><br><img id="url" src=""/> ' +
+                var el = $('<div class="tweet" ><span id="tweeterUser"></span><br><img id="url" src=""/> ' +
                         '                        <span id="tweet"></span>' +
                         '<span id="created_at"></span> ' +
                         '<span id="lang"></span>' +
@@ -74,7 +73,7 @@
                 $("#tweeterUser", el).text(data.tweeterUser)
                 $("#lang", el).text(data.lang)
                 $("#url", el).attr("src", data.url)
-                $('#messages').prepend(el)
+                $('#twitter').prepend(el)
             } else {
                 var el = $('<div class="message"><span></span><p></p></div>')
                 $("span", el).text(data.user)
@@ -82,7 +81,7 @@
                 $("p", el).text(data.message)
                 $(el).addClass(data.kind)
                 if (data.user == '@username') $(el).addClass('me')
-                $('#messages').append(el)
+                $('#twitter').append(el)
             }
 
         }
@@ -98,11 +97,11 @@
                 $('#start').hide()
                 $('#filter').hide()
                 if ($("#filterByLanguage").val() == 'No filter')
-                    $.get("@routes.Application.startFilter()", {'username': 'alvaro', 'filter': $("#filter").val()}, function (data) {
+                    $.get("@routes.Application.startFilter()", {'username': "@username", 'filter': $("#filter").val()}, function (data) {
                         $('#perete').html(data);
                     });
                 else
-                    $.get("@routes.Application.startFilter()", {'username': 'alvaro', 'filter': $("#filter").val(), 'language': $("#filterByLanguage").val()}, function (data) {
+                    $.get("@routes.Application.startFilter()", {'username': "@username", 'filter': $("#filter").val(), 'language': $("#filterByLanguage").val()}, function (data) {
                         $('#perete').html(data);
                     });
                 return false;
@@ -114,14 +113,9 @@
                 $('#start').show()
                 $('#filter').show()
                 $('#stop').hide()
-                if ($("#filterByLanguage").val() == 'No filter')
-                    $.get("@routes.Application.stopFilter()", {'username': 'alvaro', 'filter': $("#filter").val()}, function (data) {
-                        $('#perete').html(data);
-                    });
-                else
-                    $.get("@routes.Application.stopFilter()", {'username': 'alvaro', 'filter': $("#filter").val(), 'language': $("#filterByLanguage").val()}, function (data) {
-                        $('#perete').html(data);
-                    });
+                $.get("@routes.Application.stopFilter()", {'username': "@username", 'filter': $("#filter").val()}, function (data) {
+                    $('#perete').html(data);
+                });
                 return false;
             }
     )

@@ -55,7 +55,7 @@ class Master() extends Actor with Logging {
   val consumerActor = Akka.system.actorOf(Props(new Consumer(self)), "consumer")
   var connected = Map.empty[String, Concurrent.Channel[JsValue]]
   var filterMap = Map.empty[String, ListBuffer[String]]
-  var languageMap = Map.empty[String, ListBuffer[String]]
+  var languageMap = Map.empty[String, String]
 
   def receive = {
 
@@ -76,44 +76,35 @@ class Master() extends Actor with Logging {
 
     case AddFilter(username, filter, language) => {
       filterMap.get(filter) match {
-        case Some(usernames) if !(usernames.contains(username)) =>  filterMap = filterMap + (filter -> (usernames += username))
-        case Some(usernames) if (usernames.contains(username)) =>  debug(s"Username: $username has already filter $filter")
+        case Some(usernames) if !(usernames.contains(username)) => filterMap = filterMap + (filter -> (usernames += username))
+        case Some(usernames) if (usernames.contains(username)) => debug(s"Username: $username has already filter $filter")
         case None => filterMap = filterMap + (filter -> ListBuffer(username))
       }
 
       language match {
         case Some(lang) => {
-          languageMap.contains(lang) match {
-            case true => languageMap = languageMap + (lang -> (languageMap.get(lang).get += username))
-            case false => languageMap = languageMap + (lang -> ListBuffer(username))
-          }
+          languageMap = languageMap + (username -> lang)
         }
         case _ =>
       }
     }
 
-    case RemoveFilter(username, filter, language) => {
+    case RemoveFilter(username, filter) => {
       filterMap.get(filter) match {
-        case Some(usernames) if (usernames.contains(username)) => filterMap = filterMap + (filter -> (usernames -= username))
+        case Some(usernames) if (usernames.contains(username) && usernames.size == 1) => filterMap = filterMap - filter
+        case Some(usernames) if (usernames.contains(username) && usernames.size > 1) => filterMap = filterMap + (filter -> (usernames -= username))
         case Some(usernames) if !(usernames.contains(username)) => debug(s"Username: $username has no a filter $filter")
         case _ => debug("")
       }
-
-      language match {
-        case Some(lang) => {
-          languageMap.get(lang) match {
-            case Some(usernames) if (usernames.contains(username)) => languageMap = languageMap + (lang -> (usernames -= username))
-            case Some(usernames) if !(usernames.contains(username)) => debug(s"Username: $username has no a filter by language $lang")
-            case _ =>
-          }
-        }
-        case _ =>
-      }
-
+      languageMap = languageMap - username
     }
 
     case twitterEvent: TwitterEvent =>
-      var candidates = filterMap.filter(element => twitterEvent.text.toLowerCase().contains(element._1.toLowerCase()))
+      val firstRoundCandidates = filterMap.filter(element => twitterEvent.text.toLowerCase().contains(element._1.toLowerCase()))
+      val flattenList = firstRoundCandidates.values.flatten
+      val secondRoundCandidates = flattenList.filter {
+        username => info(username);(languageMap.get(username).isEmpty || languageMap.get(username).get == twitterEvent.lang.getOrElse(null))
+      }
 
       val msg = JsObject(
         Seq(
@@ -125,8 +116,7 @@ class Master() extends Actor with Logging {
           "url" -> JsString(twitterEvent.user.profile_image_url)
         )
       )
-      //todo flatmap?
-      candidates.values.foreach(usernames => usernames.foreach(username => connected.get(username).get.push(msg)))
+      secondRoundCandidates.foreach(username => connected.get(username).get.push(msg))
 
 
   }
@@ -146,4 +136,4 @@ case class CannotConnect(msg: String)
 
 case class AddFilter(username: String, filter: String, language: Option[String] = None)
 
-case class RemoveFilter(username: String, filter: String, language: Option[String] = None)
+case class RemoveFilter(username: String, filter: String)

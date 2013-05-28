@@ -56,10 +56,10 @@ object Application extends Controller with Logging {
 
   }
 
-  def stopFilter(username: Option[String], filter: Option[String], language: Option[String] = None) = Action {
+  def stopFilter(username: Option[String], filter: Option[String]) = Action {
     implicit request =>
       val encodedItem = URLEncoder.encode(filter.get, "UTF-8")
-      Master.default ! RemoveFilter(username.get, encodedItem, language)
+      Master.default ! RemoveFilter(username.get, encodedItem)
       val result: Future[ws.Response] = {
         WS.url(s"http://localhost:8080/filter/remove/$encodedItem").post("")
       }

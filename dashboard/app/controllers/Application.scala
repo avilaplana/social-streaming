@@ -12,7 +12,7 @@ import java.util.UUID
 import com.streaming.dashboard.actor.{RemoveFilter, AddFilter, Master}
 import java.net.URLEncoder
 import com.streaming.dashboard.common.Logging
-
+import com.streaming.dashboard.registry
 object Application extends Controller with Logging {
 
   def index = Action {
@@ -44,23 +44,19 @@ object Application extends Controller with Logging {
 
   def startFilter(username: Option[String], filter: Option[String], language: Option[String] = None) = Action {
     implicit request =>
-      val encodedItem = URLEncoder.encode(filter.get, "UTF-8")
-      Master.default ! AddFilter(username.get, encodedItem, language)
-      val result: Future[ws.Response] = {
-        WS.url(s"http://localhost:8080/filter/add/$encodedItem").post("")
-      }
-      Ok("Starting..........")
+      val valueToFilterBy = filter.getOrElse(throw new RuntimeException)
+      registry.filterStrategy.addFilter(valueToFilterBy)
+      Master.default ! AddFilter(username.get, valueToFilterBy, language)
+      Ok("Adding..........")
 
   }
 
   def stopFilter(username: Option[String], filter: Option[String]) = Action {
     implicit request =>
-      val encodedItem = URLEncoder.encode(filter.get, "UTF-8")
-      Master.default ! RemoveFilter(username.get, encodedItem)
-      val result: Future[ws.Response] = {
-        WS.url(s"http://localhost:8080/filter/remove/$encodedItem").post("")
-      }
-      Ok("Stop..........")
+      val valueToFilterBy = filter.getOrElse(throw new RuntimeException)
+      registry.filterStrategy.removeFilter(valueToFilterBy)
+      Master.default ! RemoveFilter(username.get, valueToFilterBy)
+      Ok("Removing..........")
   }
 
 }

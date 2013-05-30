@@ -12,18 +12,18 @@ trait FilterAdapter[T] {
   def removeFilter(filter: T)
 }
 
-class FilterHttpRequester(url: String) extends FilterAdapter[String] {
+case class FilterHttpRequester(url: String) extends FilterAdapter[String] {
   def addFilter(filter: String) {
     val encodedItem = URLEncoder.encode(filter, "UTF-8")
     val result: Future[ws.Response] = {
-      WS.url(s"http://localhost:8080/filter/add/$encodedItem").post("")
+      WS.url(s"${url}add/$encodedItem").post("")
     }
   }
 
   def removeFilter(filter: String) {
     val encodedItem = URLEncoder.encode(filter, "UTF-8")
     val result: Future[ws.Response] = {
-      WS.url(s"http://localhost:8080/filter/remove/$encodedItem").post("")
+      WS.url(s"${url}remove/$encodedItem").post("")
     }
   }
 }

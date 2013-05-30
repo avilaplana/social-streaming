@@ -13,13 +13,16 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 import com.streaming.dashboard.common.Logging
 import collection.mutable.ListBuffer
+import com.streaming.dashboard.rest.{FilterHttpRequester, FilterAdapter}
+import com.streaming.dashboard.registry
+import java.net.URLEncoder
 
 object Master extends Logging {
 
   implicit val timeout = akka.util.Timeout(1 second)
 
   lazy val default = {
-    val master = Akka.system.actorOf(Props[Master])
+    val master = Akka.system.actorOf(Props(new Master(registry.filterStrategy)))
     master ! StartConsumer
     master
   }
@@ -46,7 +49,7 @@ object Master extends Logging {
   }
 }
 
-class Master() extends Actor with Logging {
+class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
 
   val consumerActor = Akka.system.actorOf(Props(new Consumer(self)), "consumer")
   var connected = Map.empty[String, Concurrent.Channel[JsValue]]
@@ -58,7 +61,6 @@ class Master() extends Actor with Logging {
     case Join(username) => {
       val e = Concurrent.unicast[JsValue] {
         c =>
-          play.Logger.info("Start")
           connected = connected + (username -> c)
       }
       sender ! Connected(e)
@@ -69,13 +71,16 @@ class Master() extends Actor with Logging {
       connected = connected - username
       languageMap = languageMap - username
       val filterEntry = filterMap.filter(entry => entry._2.contains(username))
+      debug(s"Username $username quitted,removing data from $filterMap, $languageMap")
       filterEntry.foreach {
         entry =>
+          filterStrategy.removeFilter(entry._1)
           val usernames = entry._2
           if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
           else filterMap = filterMap - entry._1
       }
-      debug(s"Username $username quitted,removing data $filterMap, $languageMap")
+
+
 
     }
 
@@ -84,7 +89,7 @@ class Master() extends Actor with Logging {
     case AddFilter(username, filter, language) => {
       filterMap.get(filter) match {
         case Some(usernames) if !(usernames.contains(username)) => filterMap = filterMap + (filter -> (usernames += username))
-        case Some(usernames) if (usernames.contains(username)) => debug(s"Username: $username has already filter $filter")
+        case Some(usernames) if (usernames.contains(username)) => warn(s"Username: $username has already filter $filter")
         case None => filterMap = filterMap + (filter -> ListBuffer(username))
       }
 
@@ -100,7 +105,7 @@ class Master() extends Actor with Logging {
       filterMap.get(filter) match {
         case Some(usernames) if (usernames.contains(username) && usernames.size == 1) => filterMap = filterMap - filter
         case Some(usernames) if (usernames.contains(username) && usernames.size > 1) => filterMap = filterMap + (filter -> (usernames -= username))
-        case Some(usernames) if !(usernames.contains(username)) => debug(s"Username: $username has no a filter $filter")
+        case Some(usernames) if !(usernames.contains(username)) => warn(s"Username: $username has no a filter $filter")
         case _ => debug("")
       }
       languageMap = languageMap - username

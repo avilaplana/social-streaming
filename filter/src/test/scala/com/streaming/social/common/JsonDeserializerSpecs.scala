@@ -19,12 +19,14 @@ class JsonDeserializerSpecs extends Specification {
         created_at = cal.getTime,
         lang = Some("en"),
         User(profile_image_url = "http://test.com/images/test.jpg",
-             screen_name = "testuser")))
+             screen_name = "testuser",
+            followers_count = 99,
+        friends_count = 199)))
 
       json must_== jsonExpected
     }
   }
 
-  val jsonExpected = """{"text":"this is a test","created_at":"Fri Feb 1 00:00:00 +0000 2013","lang":"en","user":{"profile_image_url":"http://test.com/images/test.jpg","screen_name":"testuser"}}"""
+  val jsonExpected = """{"text":"this is a test","created_at":"Fri Feb 1 00:00:00 +0000 2013","lang":"en","user":{"profile_image_url":"http://test.com/images/test.jpg","screen_name":"testuser","followers_count":99,"friends_count":199}}"""
 
 }

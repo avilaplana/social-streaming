@@ -10,12 +10,14 @@ class JsonSerializerSpecs extends Specification {
 
   "desirialized json" should {
     "create a instance of TwitterEvent" in {
-      val twitterInstance :TwitterEvent = json.extractJsonToObject(twitterJson)
+      val twitterInstance: TwitterEvent = json.extractJsonToObject(twitterJson)
       twitterInstance.text must_== "This is a exampl of json for the test"
       twitterInstance.user.profile_image_url must_== "http://a0.twimg.com/profile_images/2995540720/0dfc4bc235fa893150b6865a33b33ed4_normal.jpeg"
       twitterInstance.created_at must_!= null
       twitterInstance.user.screen_name must_== "willstauff"
-      twitterInstance.lang must_==  Some("en")
+      twitterInstance.user.followers_count == 10077
+      twitterInstance.user.friends_count == 11065
+      twitterInstance.lang must_== Some("en")
     }
   }
 

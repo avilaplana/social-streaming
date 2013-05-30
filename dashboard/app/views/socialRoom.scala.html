@@ -2,8 +2,9 @@
 
 @main(Some(username)) {
 
+
 <div class="pull-left">
-    <span class="label label-info">Searching by</span>
+    <span class="label notice">Searching by</span>
     <input id="filter" name="filter" class="input-large" type="text" placeholder="Filter">
     <button id="start" class="btn arrow" type="submit">Start</button>
 </div>
@@ -12,7 +13,7 @@
 </div>
 
 <div class="pull-right">
-    <span class="label label-info">Filter by Language</span>
+    <span class="label notice">Filter by Language</span>
     <select id="filterByLanguage">
         <option selected>No filter</option>
         <option value="es">Spanish</option>
@@ -22,6 +23,8 @@
         <option value="it">Italian</option>
     </select>
 </div>
+
+
 <!--<div class="result" style="border: 1px solid black; padding: 5px;">not sent yet...</div>-->
 <br><br><br><br>
 <div id="onChat" class="row">
@@ -64,12 +67,47 @@
             // Create the message element
 
             if (data.tweet != null) {
-                var el = $('<div class="well well-small" ><div class="pull-left">User: <b><span id="tweeterUser"></span></b></div><div class="pull-right">Date: <b><span id="created_at"></span></b></div><br>' +
-                        '<br><img id="url" src=""/><span id="tweet"></span>' +
-                        '<br><div class="pull-right"> Language: <b><span id="lang"></span></b></div></div>')
+//                var el = $('<div class="well well-small" >' +
+//                        '<div class="pull-left">' +
+//                        '<b><span class="label success" id="tweeterUser" ></span></b>' +
+//                        '<span class="label success" id="followers" ></span>' +
+//                        '</div>' +
+//                        '<div class="pull-right"><b>' +
+//                        '<span id="created_at" class="label success"></span></b>' +
+//                        '</div><br>' +
+//                        '<br><img id="url" src=""/>' +
+//                        '<span id="tweet"></span>' +
+//                        '<br>' +
+//                        '<div class="pull-right"><b>' +
+//                        '<span id="lang" class="label success"></span></b>' +
+//                        '</div>' +
+//                        '</div>')
+
+                var el = $('<div class="well well-small" >' +
+                        '<div class="pull-right">' +
+                        '<span class="label important" id="tweeterUser"></span>' +
+                        '<span class="label warning" id="created_at"></span>' +
+                        '<span class="label notice" id="lang"></span>' +
+                        '</div>' +
+                        '<div class="media">' +
+                        '<a class="pull-left" href="#">' +
+                        '<img id="url" class="media-object" data-src="">' +
+                        '</a>' +
+                        '<div class="media-body">' +
+                        '<br><span id="tweet"></span>' +
+                        '       </div>' +
+                        '<div class="pull-right">' +
+                        '<span class="label success" id="followers"></span>' +
+                        '<span class="label success" id="friends"></span>' +
+                        '</div>' +
+                        '</div>')
+
+
                 $("#tweet", el).text(data.tweet)
                 $("#created_at", el).text(data.created_at)
                 $("#tweeterUser", el).text(data.tweeterUser)
+                $("#followers", el).text("Followers: " + data.followers_count)
+                $("#friends", el).text("Friends: " + data.friends_count)
                 $("#lang", el).text(data.lang)
                 $("#url", el).attr("src", data.url)
                 $('#twitter').prepend(el)

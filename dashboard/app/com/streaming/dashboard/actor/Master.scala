@@ -24,10 +24,6 @@ object Master extends Logging {
     master
   }
 
-  //  def filterByLanguage(language: Option[String]) {
-  //    default ! AddFilter(language)
-  //  }
-
   def join(username: String): scala.concurrent.Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     (default ? Join(username)).map {
@@ -73,10 +69,11 @@ class Master() extends Actor with Logging {
       connected = connected - username
       languageMap = languageMap - username
       val filterEntry = filterMap.filter(entry => entry._2.contains(username))
-      filterEntry.foreach{entry =>
-        val usernames = entry._2
-        if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
-        else filterMap = filterMap - entry._1
+      filterEntry.foreach {
+        entry =>
+          val usernames = entry._2
+          if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
+          else filterMap = filterMap - entry._1
       }
       debug(s"Username $username quitted,removing data $filterMap, $languageMap")
 
@@ -113,7 +110,7 @@ class Master() extends Actor with Logging {
       val firstRoundCandidates = filterMap.filter(element => twitterEvent.text.toLowerCase().contains(element._1.toLowerCase()))
       val flattenList = firstRoundCandidates.values.flatten
       val secondRoundCandidates = flattenList.filter {
-        username => info(username);(languageMap.get(username).isEmpty || languageMap.get(username).get == twitterEvent.lang.getOrElse(null))
+        username => info(username); (languageMap.get(username).isEmpty || languageMap.get(username).get == twitterEvent.lang.getOrElse(null))
       }
 
       val msg = JsObject(
@@ -123,7 +120,9 @@ class Master() extends Actor with Logging {
           "created_at" -> JsString(twitterEvent.created_at.toString),
           "lang" -> JsString(twitterEvent.lang.getOrElse("undefined")),
           "tweeterUser" -> JsString(twitterEvent.user.screen_name),
-          "url" -> JsString(twitterEvent.user.profile_image_url)
+          "url" -> JsString(twitterEvent.user.profile_image_url),
+          "followers_count" -> JsString(twitterEvent.user.followers_count.toString),
+          "friends_count" -> JsString(twitterEvent.user.friends_count.toString)
         )
       )
       secondRoundCandidates.foreach(username => connected.get(username).get.push(msg))

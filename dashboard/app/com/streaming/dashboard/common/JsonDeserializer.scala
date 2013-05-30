@@ -17,8 +17,12 @@ class JsonDeserializer() {
     val url = jsonNode.get("user").get("profile_image_url").asText()
     val language = if (jsonNode.get("lang") == null) None else Some(jsonNode.get("lang").asText())
     val name = jsonNode.get("user").get("screen_name").asText()
+    val followers = jsonNode.get("user").get("followers_count").asInt()
+    val friends = jsonNode.get("user").get("friends_count").asInt()
 
-    TwitterEvent(text = text, created_at = dateFormatter.parse(created_at), lang = language, user = User(screen_name = name,profile_image_url = url))
+    TwitterEvent(text = text, created_at = dateFormatter.parse(created_at),
+      lang = language,
+      user = User(screen_name = name,profile_image_url = url,followers_count = followers, friends_count = friends ))
 
     }
 

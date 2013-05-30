@@ -13,4 +13,4 @@ case class StopStream(filterToStop: String) extends Message
 case class ReadStream(stream: InputStream, sessionId: Option[String]) extends Message
 case class Tweet(tweet : String) extends Message
 case class TwitterEvent(val text: String, val created_at: Date, val lang: Option[String], val user: User) extends Message
-case class User(val profile_image_url: String, val screen_name: String)
+case class User(val profile_image_url: String, val screen_name: String, val followers_count: Integer, val friends_count: Integer)

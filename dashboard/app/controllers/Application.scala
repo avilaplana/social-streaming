@@ -15,9 +15,6 @@ import com.streaming.dashboard.common.Logging
 
 object Application extends Controller with Logging {
 
-  /**
-   * Just display the home page.
-   */
   def index = Action {
     implicit request =>
       Ok(views.html.index())
@@ -36,7 +33,7 @@ object Application extends Controller with Logging {
   }
 
   /**
-   * Handles the chat websocket.
+   * Handles the websocket.
    */
   def stream(username: String) = WebSocket.async[JsValue] {
     request =>

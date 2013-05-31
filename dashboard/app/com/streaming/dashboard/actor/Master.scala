@@ -13,9 +13,8 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 import com.streaming.dashboard.common.Logging
 import collection.mutable.ListBuffer
-import com.streaming.dashboard.rest.{FilterHttpRequester, FilterAdapter}
+import com.streaming.dashboard.rest.FilterAdapter
 import com.streaming.dashboard.registry
-import java.net.URLEncoder
 
 object Master extends Logging {
 
@@ -79,7 +78,6 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
           if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
           else filterMap = filterMap - entry._1
       }
-
 
 
     }

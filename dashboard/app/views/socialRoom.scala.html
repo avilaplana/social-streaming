@@ -2,31 +2,27 @@
 
 @main(Some(username)) {
 
+<div class="row">
+    <span class="span8">
+        <label class="label notice">Searching by</label>
+    <input id="filter" name="filter" class="input-large" type="text" placeholder="Filter"/>
+    <button id="start" class="btn primary" type="submit">Start</button>
+        <button id="stop" class="btn danger" type="submit">Stop</button>
+    </span>
 
-<div class="pull-left">
-    <span class="label notice">Searching by</span>
-    <input id="filter" name="filter" class="input-large" type="text" placeholder="Filter">
-    <button id="start" class="btn arrow" type="submit">Start</button>
+    <div class="span6">
+        <span class="label notice">Filter by Language</span>
+        <select id="filterByLanguage">
+            <option selected>No filter</option>
+            <option value="es">Spanish</option>
+            <option value="en">English</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+        </select>
+    </div>
 </div>
-<div class="pull-left">
-    <button id="stop" class="btn" type="submit">Stop</button>
-</div>
-
-<div class="pull-right">
-    <span class="label notice">Filter by Language</span>
-    <select id="filterByLanguage">
-        <option selected>No filter</option>
-        <option value="es">Spanish</option>
-        <option value="en">English</option>
-        <option value="fr">French</option>
-        <option value="de">German</option>
-        <option value="it">Italian</option>
-    </select>
-</div>
-
-
-<!--<div class="result" style="border: 1px solid black; padding: 5px;">not sent yet...</div>-->
-<br><br><br><br>
+<div class="row"><BR><BR></a></div>
 <div id="onChat" class="row">
     <div class="span14" id="main">
         <div id="twitter">
@@ -84,28 +80,24 @@
 //                        '</div>')
 
                 var el = $('<div class="well well-small" >' +
-                        '<div class="pull-right">' +
-                        '<span class="label important" id="tweeterUser"></span>' +
-                        '<span class="label warning" id="created_at"></span>' +
-                        '<span class="label notice" id="lang"></span>' +
+                        '<div class="row">' +
+                        '<div class="span3"><span class="label notice" id="tweeterUser"></span></div>' +
+                        '<div class="span3"><span class="label notice" id="created_at"></span></div>' +
+                        '<div class="span3"><span class="label notice" id="lang"></span></div>' +
+                        '<div class="span2"><span class="label notice" id="followers"></span></div>' +
+                        '<div class="span2"><span class="label notice" id="friends"></span></div>' +
                         '</div>' +
                         '<div class="media">' +
                         '<a class="pull-left" href="#">' +
                         '<img id="url" class="media-object" data-src="">' +
                         '</a>' +
-                        '<div class="media-body">' +
-                        '<br><span id="tweet"></span>' +
-                        '       </div>' +
-                        '<div class="pull-right">' +
-                        '<span class="label success" id="followers"></span>' +
-                        '<span class="label success" id="friends"></span>' +
-                        '</div>' +
-                        '</div>')
+                        '<div class="media-body"><br><span id="tweet"></span></div>' +
+                        '</div></div>')
 
 
-                $("#tweet", el).text(data.tweet)
+                $("#tweet", el).text('Tweet:' + data.tweet)
                 $("#created_at", el).text(data.created_at)
-                $("#tweeterUser", el).text(data.tweeterUser)
+                $("#tweeterUser", el).text('User: ' + data.tweeterUser)
                 $("#followers", el).text("Followers: " + data.followers_count)
                 $("#friends", el).text("Friends: " + data.friends_count)
                 $("#lang", el).text(data.lang)

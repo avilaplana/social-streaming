@@ -1,17 +1,15 @@
 @(username: String)(implicit request: RequestHeader)
 
 @main(Some(username)) {
-
 <div class="row">
     <span class="span8">
-        <label class="label notice">Searching by</label>
-    <input id="filter" name="filter" class="input-large" type="text" placeholder="Filter"/>
-    <button id="start" class="btn primary" type="submit">Start</button>
+        <input id="filter" name="filter" type="text" class="input-medium">
+        <button id="start" class="btn primary" type="submit">Search</button>
         <button id="stop" class="btn danger" type="submit">Stop</button>
     </span>
 
     <div class="span6">
-        <span class="label notice">Filter by Language</span>
+        <span class="label important">Filter by Language</span>
         <select id="filterByLanguage">
             <option selected>No filter</option>
             <option value="es">Spanish</option>
@@ -63,43 +61,26 @@
             // Create the message element
 
             if (data.tweet != null) {
-//                var el = $('<div class="well well-small" >' +
-//                        '<div class="pull-left">' +
-//                        '<b><span class="label success" id="tweeterUser" ></span></b>' +
-//                        '<span class="label success" id="followers" ></span>' +
-//                        '</div>' +
-//                        '<div class="pull-right"><b>' +
-//                        '<span id="created_at" class="label success"></span></b>' +
-//                        '</div><br>' +
-//                        '<br><img id="url" src=""/>' +
-//                        '<span id="tweet"></span>' +
-//                        '<br>' +
-//                        '<div class="pull-right"><b>' +
-//                        '<span id="lang" class="label success"></span></b>' +
-//                        '</div>' +
-//                        '</div>')
-
                 var el = $('<div class="well well-small" >' +
                         '<div class="row">' +
-                        '<div class="span3"><span class="label notice" id="tweeterUser"></span></div>' +
-                        '<div class="span3"><span class="label notice" id="created_at"></span></div>' +
-                        '<div class="span3"><span class="label notice" id="lang"></span></div>' +
-                        '<div class="span2"><span class="label notice" id="followers"></span></div>' +
-                        '<div class="span2"><span class="label notice" id="friends"></span></div>' +
+                        '<div class="span2"><img id="url" class="media-object" data-src=""></div>' +
+                        '<div class="span3"><strong><span>User: </span></strong><span id="tweeterUser"></span></div>' +
+                        '<div class="span3"><span id="created_at"></span></div>' +
+                        '<div class="span3"><strong><span>Language: </span></strong><span id="lang"></span></div>' +
+                        '<div class="span2"><strong><span>Followers: </span></strong><span id="followers"></span></div>' +
                         '</div>' +
                         '<div class="media">' +
-                        '<a class="pull-left" href="#">' +
-                        '<img id="url" class="media-object" data-src="">' +
-                        '</a>' +
-                        '<div class="media-body"><br><span id="tweet"></span></div>' +
+//                        '<a class="pull-left" href="#">' +
+//                        '<img id="url" class="media-object" data-src="">' +
+//                        '</a>' +
+                        '<div class="media-body"><br><span class="label important">Tweet:</span><span id="tweet"></span></div>' +
                         '</div></div>')
 
 
-                $("#tweet", el).text('Tweet:' + data.tweet)
+                $("#tweet", el).text(' ' + data.tweet)
                 $("#created_at", el).text(data.created_at)
-                $("#tweeterUser", el).text('User: ' + data.tweeterUser)
-                $("#followers", el).text("Followers: " + data.followers_count)
-                $("#friends", el).text("Friends: " + data.friends_count)
+                $("#tweeterUser", el).text(data.tweeterUser)
+                $("#followers", el).text(data.followers_count)
                 $("#lang", el).text(data.lang)
                 $("#url", el).attr("src", data.url)
                 $('#twitter').prepend(el)

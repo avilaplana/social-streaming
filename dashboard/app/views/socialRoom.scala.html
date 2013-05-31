@@ -63,7 +63,7 @@
             if (data.tweet != null) {
                 var el = $('<div class="well well-small" >' +
                         '<div class="row">' +
-                        '<div class="span2"><img id="url" class="media-object" data-src=""></div>' +
+                        '<div class="span2"><img id="url" data-src=""></div>' +
                         '<div class="span3"><strong><span>User: </span></strong><span id="tweeterUser"></span></div>' +
                         '<div class="span3"><span id="created_at"></span></div>' +
                         '<div class="span3"><strong><span>Language: </span></strong><span id="lang"></span></div>' +
@@ -73,7 +73,8 @@
 //                        '<a class="pull-left" href="#">' +
 //                        '<img id="url" class="media-object" data-src="">' +
 //                        '</a>' +
-                        '<div class="media-body"><br><span class="label important">Tweet:</span><span id="tweet"></span></div>' +
+                        '<div class="media-body"><br><img src="@routes.Assets.at("images/bird_blue_16.png")">' +
+                        '<span id="tweet"></span></div>' +
                         '</div></div>')
 
 

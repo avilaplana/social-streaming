@@ -54,6 +54,9 @@ Technologies
 8. Specs2 1.13
 9. SBT 0.12.3
 
+The role of Akka framework
+TODO 
+
 How to run it?
 
 Go to the filter folder and execute 
@@ -90,6 +93,8 @@ Technologies
 5. AMQP client 3.0.4
 6. SBT 0.12.3
 
+The role of Akka framework
+TODO
 How to run it?
 
 Go to the dashboard folder and execute 

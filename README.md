@@ -4,7 +4,7 @@ The idea behind this project is to learn more (or everything) about Scala and al
 
 **The initial idea**
 
-The purpose of this exercise is to create a platform that provide real-time streaming from different social networks, i.e. Twitter 
+The purpose of this exercise is to create a platform that provides real-time streaming from different social networks, i.e. Twitter 
 and Facebook. There is a user interface called 'Dashboard' that permits to the user to introduce 'Search & Filters parameters' to
 make more useful the content. 
 
@@ -116,4 +116,6 @@ The next diagram show the architecture
 
 ![Deploy real environment](https://raw.github.com/avilaplana/social-streaming/master/documentation/third.png)
 
-The next diagram show the architecture
+3. Add newest frameworks if they are useful
+
+4. Add proper testing for frameworks like Akka and Play. I mean create good quality integration and acceptance tests 

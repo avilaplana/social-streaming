@@ -119,3 +119,5 @@ The next diagram show the architecture
 3. Add newest frameworks if they are useful
 
 4. Add proper testing for frameworks like Akka and Play. I mean create good quality integration and acceptance tests 
+
+

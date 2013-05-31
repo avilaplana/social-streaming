@@ -4,6 +4,17 @@ The idea behind this project is to learn more (or everything) about Scala and al
 
 **The initial idea**
 
+The purpose of this exercise is to create a platform that provide real-time streaming from different social networks, i.e. Twitter 
+and Facebook. There is a user interface called 'Dashboard' permits to the user to introduce 'Search parameters' and different kind
+of filters to make more usefull the content. 
+
+Behind the scenes, there is another application called 'Filter' that will connect with the social networks to get the stream for a set of filters. That content
+will  be sent to a broker. The 'Dashboard' will consumes the stream from the broker and will show to the users.
+
+In terms of technologies, I bet for Scala ecosystem, because the functional languages are becoming more and more popular
+in the community, and I bevieve that is very important to have the functional point of view of the things instead of beaing object oriented all the time.
+
+
 The next diagram shows the first initial development for the project
 
 ![Initial development](https://raw.github.com/avilaplana/social-streaming/master/documentation/initial.png)

@@ -9,8 +9,6 @@ import com.streaming.dashboard.common.{Logging, JsonDeserializer}
 
 class Consumer(master: ActorRef) extends Actor with Logging {
 
-  var languageToFilterBy: Option[String] = None
-
   def receive = {
     case StartConsumer => configureConnection
     case ConsumeMessage(consumer) => consumeMessage(consumer)
@@ -24,9 +22,15 @@ class Consumer(master: ActorRef) extends Actor with Logging {
     val connection = factory.newConnection()
 
     val channel = connection.createChannel()
-    channel.queueDeclare("tweet.queue", true, false, false, null)
-    val consumer = new QueueingConsumer(channel)
-    channel.basicConsume("tweet.queue", true, consumer)
+
+
+    channel.exchangeDeclare("tweets", "fanout");
+    val queueName = channel.queueDeclare().getQueue();
+    channel.queueBind(queueName, "tweets", "");
+
+    val consumer = new QueueingConsumer(channel);
+    channel.basicConsume(queueName, true, consumer);
+
     self ! ConsumeMessage(consumer)
   }
 

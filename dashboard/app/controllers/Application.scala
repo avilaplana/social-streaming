@@ -42,11 +42,22 @@ object Application extends Controller with Logging {
 
   }
 
-  def startFilter(username: Option[String], filter: Option[String], language: Option[String] = None) = Action {
+  def startFilter(username: Option[String], filter: Option[String], followers: Option[String] = None, language: Option[String] = None) = Action {
     implicit request =>
       val valueToFilterBy = filter.getOrElse(throw new RuntimeException)
+
+      val followersFilter = followers match {
+        case Some(follow) if (!follow.equals("No filter")) => Some(follow)
+        case _ => None
+      }
+
+      val languageFilter = language match {
+              case Some(lang) if (!lang.equals("No filter")) => Some(lang)
+              case _ => None
+            }
+
       registry.filterStrategy.addFilter(valueToFilterBy)
-      Master.default ! AddFilter(username.get, valueToFilterBy, language)
+      Master.default ! AddFilter(username.get, valueToFilterBy, followersFilter, languageFilter)
       Ok("Adding..........")
 
   }

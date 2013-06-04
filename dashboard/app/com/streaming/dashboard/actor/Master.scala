@@ -54,6 +54,7 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
   var connected = Map.empty[String, Concurrent.Channel[JsValue]]
   var filterMap = Map.empty[String, ListBuffer[String]]
   var languageMap = Map.empty[String, String]
+  var followersMap = Map.empty[String, String]
 
   def receive = {
 
@@ -69,8 +70,9 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
 
       connected = connected - username
       languageMap = languageMap - username
+      filterMap = filterMap - username
       val filterEntry = filterMap.filter(entry => entry._2.contains(username))
-      debug(s"Username $username quitted,removing data from $filterMap, $languageMap")
+      debug(s"Username $username quitted,removing data from $filterMap, $languageMap, $followersMap")
       filterEntry.foreach {
         entry =>
           filterStrategy.removeFilter(entry._1)
@@ -78,13 +80,11 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
           if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
           else filterMap = filterMap - entry._1
       }
-
-
     }
 
     case StartConsumer => consumerActor ! StartConsumer
 
-    case AddFilter(username, filter, language) => {
+    case AddFilter(username, filter, followers, language) => {
       filterMap.get(filter) match {
         case Some(usernames) if !(usernames.contains(username)) => filterMap = filterMap + (filter -> (usernames += username))
         case Some(usernames) if (usernames.contains(username)) => warn(s"Username: $username has already filter $filter")
@@ -94,6 +94,13 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
       language match {
         case Some(lang) => {
           languageMap = languageMap + (username -> lang)
+        }
+        case _ =>
+      }
+
+      followers match {
+        case Some(number) => {
+          followersMap = followersMap + (username -> number)
         }
         case _ =>
       }
@@ -107,6 +114,7 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
         case _ => debug("")
       }
       languageMap = languageMap - username
+      followersMap = followersMap - username
     }
 
     case twitterEvent: TwitterEvent =>
@@ -116,22 +124,43 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
         username => info(username); (languageMap.get(username).isEmpty || languageMap.get(username).get == twitterEvent.lang.getOrElse(null))
       }
 
+      val thirdRoundCandidates = secondRoundCandidates.filter {
+        username => (followersMap.get(username).isEmpty || isFilteredByFollowers(followersMap.get(username).get, twitterEvent.user.followers_count))
+      }
+
+      val lang: Option[String] = twitterEvent.lang match {
+        case Some(language) => registry.mapLanguages.get(language)
+        case _ => None
+      }
+
       val msg = JsObject(
         Seq(
           "user" -> JsString("alvaro"),
           "tweet" -> JsString(twitterEvent.text),
           "created_at" -> JsString(twitterEvent.created_at.toString),
-          "lang" -> JsString(twitterEvent.lang.getOrElse("undefined")),
+          "lang" -> JsString(lang.getOrElse("undefined")),
           "tweeterUser" -> JsString(twitterEvent.user.screen_name),
           "url" -> JsString(twitterEvent.user.profile_image_url),
           "followers_count" -> JsString(twitterEvent.user.followers_count.toString),
           "friends_count" -> JsString(twitterEvent.user.friends_count.toString)
         )
       )
-      secondRoundCandidates.foreach(username => connected.get(username).get.push(msg))
+      thirdRoundCandidates.foreach(username => connected.get(username).get.push(msg))
 
 
   }
+
+  private def isFilteredByFollowers(followersFilter: String, followers: Integer) = {
+    val filtered = followersFilter match {
+      case "1" if (followers > 500) => true
+      case "2" if (followers > 5000) => true
+      case "3" if (followers > 50000) => true
+      case "4" if (followers > 1000000) => true
+      case _ => false
+    }
+    filtered
+  }
+
 }
 
 case class StartConsumer() extends Message
@@ -146,6 +175,6 @@ case class Connected(enumerator: Enumerator[JsValue])
 
 case class CannotConnect(msg: String)
 
-case class AddFilter(username: String, filter: String, language: Option[String] = None)
+case class AddFilter(username: String, filter: String, followers: Option[String] = None, language: Option[String] = None)
 
 case class RemoveFilter(username: String, filter: String)

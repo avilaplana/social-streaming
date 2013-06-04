@@ -15,8 +15,9 @@ case class MQProducer(broker: String, queue: String) extends ProducerAdaptor[Str
   def send(message: String) {
     val connection = factory.newConnection();
     val channel = connection.createChannel();
-    channel.queueDeclare(queue, true, false, false, null);
-    channel.basicPublish("", queue, MessageProperties.TEXT_PLAIN, message.getBytes());
+
+    channel.exchangeDeclare("tweets", "fanout");
+    channel.basicPublish("tweets", "", MessageProperties.TEXT_PLAIN, message.getBytes());
 
     channel.close();
     connection.close();

@@ -6,7 +6,7 @@ import play.api.Play.current
 
 object Global extends GlobalSettings {
 
-  override def beforeStart(app: Application) {
+  override def onStart(app: Application) {
     Master.default ! StartConsumer
   }
 

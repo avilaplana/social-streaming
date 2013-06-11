@@ -13,6 +13,7 @@ import com.streaming.dashboard.actor.{RemoveFilter, AddFilter, Master}
 import java.net.URLEncoder
 import com.streaming.dashboard.common.Logging
 import com.streaming.dashboard.registry
+
 object Application extends Controller with Logging {
 
   def index = Action {
@@ -42,7 +43,7 @@ object Application extends Controller with Logging {
 
   }
 
-  def startFilter(username: Option[String], filter: Option[String], followers: Option[String] = None, language: Option[String] = None) = Action {
+  def startFilter(username: Option[String], filter: Option[String], followers: Option[String] = None, language: Option[String] = None, location: Option[String] = None) = Action {
     implicit request =>
       val valueToFilterBy = filter.getOrElse(throw new RuntimeException)
 
@@ -52,20 +53,28 @@ object Application extends Controller with Logging {
       }
 
       val languageFilter = language match {
-              case Some(lang) if (!lang.equals("No filter")) => Some(lang)
-              case _ => None
-            }
+        case Some(lang) if (!lang.equals("No filter")) => Some(lang)
+        case _ => None
+      }
 
-      registry.filterStrategy.addFilter(valueToFilterBy)
-      Master.default ! AddFilter(username.get, valueToFilterBy, followersFilter, languageFilter)
+      val locationFilter = location match {
+        case Some(loc) if (!loc.equals("No filter")) => registry.filterStrategy.addLocation(loc); Some(loc)
+        case _ => registry.filterStrategy.addFilter(valueToFilterBy); None
+      }
+
+      Master.default ! AddFilter(username.get, valueToFilterBy, followersFilter, languageFilter, locationFilter)
       Ok("Adding..........")
 
   }
 
-  def stopFilter(username: Option[String], filter: Option[String]) = Action {
+  def stopFilter(username: Option[String], filter: Option[String], location: Option[String] = None) = Action {
     implicit request =>
       val valueToFilterBy = filter.getOrElse(throw new RuntimeException)
-      registry.filterStrategy.removeFilter(valueToFilterBy)
+
+      val locationFilter = location match {
+        case Some(loc) if (!loc.equals("No filter")) => registry.filterStrategy.removeLocation(loc); Some(loc)
+        case _ => registry.filterStrategy.removeFilter(valueToFilterBy); None
+      }
       Master.default ! RemoveFilter(username.get, valueToFilterBy)
       Ok("Removing..........")
   }

@@ -22,6 +22,16 @@ class ComponentRegistry extends Logging {
     oauthTokenSecrete = conf.getString("configuration.oauth.token.secret"))
 
   val producerStrategy = MQProducer(broker = conf.getString("configuration.mq.broker"),
-                                    queue = conf.getString("configuration.mq.queue"))
+    queue = conf.getString("configuration.mq.queue"))
+
+  val coordinates = Map(
+    conf.getString("configuration.countries.uk.code") -> conf.getString("configuration.countries.uk.box"),
+    conf.getString("configuration.countries.es.code") -> conf.getString("configuration.countries.es.box"),
+    conf.getString("configuration.countries.fr.code") -> conf.getString("configuration.countries.fr.box"),
+    conf.getString("configuration.countries.de.code") -> conf.getString("configuration.countries.de.box"),
+    conf.getString("configuration.countries.it.code") -> conf.getString("configuration.countries.it.box")
+  )
+
+  println(coordinates)
 
 }

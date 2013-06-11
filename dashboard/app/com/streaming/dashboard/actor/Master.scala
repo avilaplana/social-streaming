@@ -53,6 +53,7 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
   val consumerActor = Akka.system.actorOf(Props(new Consumer(self)), "consumer")
   var connected = Map.empty[String, Concurrent.Channel[JsValue]]
   var filterMap = Map.empty[String, ListBuffer[String]]
+  var locationMap = Map.empty[String, String]
   var languageMap = Map.empty[String, String]
   var followersMap = Map.empty[String, String]
 
@@ -68,23 +69,33 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
 
     case Quit(username) => {
 
+      var sent = false
       connected = connected - username
       languageMap = languageMap - username
-      filterMap = filterMap - username
-      val filterEntry = filterMap.filter(entry => entry._2.contains(username))
-      debug(s"Username $username quitted,removing data from $filterMap, $languageMap, $followersMap")
-      filterEntry.foreach {
+
+      if (locationMap.contains(username)) {
+        filterStrategy.removeLocation(locationMap.get(username).get)
+        sent = true
+      }
+      locationMap = locationMap - username
+
+      val filterCandidates = filterMap.filter(entry => entry._2.contains(username))
+      if (filterCandidates.size > 1) warn(s"Too many filters to remove for the same username $username")
+
+      debug(s"Username $username quitted,removing data from $locationMap $filterMap, $languageMap, $followersMap")
+      filterCandidates.foreach {
         entry =>
-          filterStrategy.removeFilter(entry._1)
+          if (!sent) filterStrategy.removeFilter(entry._1)
           val usernames = entry._2
           if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
           else filterMap = filterMap - entry._1
       }
+
     }
 
     case StartConsumer => consumerActor ! StartConsumer
 
-    case AddFilter(username, filter, followers, language) => {
+    case AddFilter(username, filter, followers, language, location) => {
       filterMap.get(filter) match {
         case Some(usernames) if !(usernames.contains(username)) => filterMap = filterMap + (filter -> (usernames += username))
         case Some(usernames) if (usernames.contains(username)) => warn(s"Username: $username has already filter $filter")
@@ -104,20 +115,31 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
         }
         case _ =>
       }
+
+      location match {
+        case Some(loc) => {
+          locationMap = locationMap + (username -> loc.toUpperCase)
+        }
+        case _ =>
+      }
     }
 
-    case RemoveFilter(username, filter) => {
+    case RemoveFilter(username, filter, location) => {
       filterMap.get(filter) match {
         case Some(usernames) if (usernames.contains(username) && usernames.size == 1) => filterMap = filterMap - filter
         case Some(usernames) if (usernames.contains(username) && usernames.size > 1) => filterMap = filterMap + (filter -> (usernames -= username))
         case Some(usernames) if !(usernames.contains(username)) => warn(s"Username: $username has no a filter $filter")
-        case _ => debug("")
+        case _ => warn(s"No filter $filter defined")
       }
+
       languageMap = languageMap - username
       followersMap = followersMap - username
+      locationMap = locationMap - username
     }
 
     case twitterEvent: TwitterEvent =>
+
+      debug(s"Ready to filter $twitterEvent")
       val firstRoundCandidates = filterMap.filter(element => twitterEvent.text.toLowerCase().contains(element._1.toLowerCase()))
       val flattenList = firstRoundCandidates.values.flatten
       val secondRoundCandidates = flattenList.filter {
@@ -126,6 +148,13 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
 
       val thirdRoundCandidates = secondRoundCandidates.filter {
         username => (followersMap.get(username).isEmpty || isFilteredByFollowers(followersMap.get(username).get, twitterEvent.user.followers_count))
+      }
+
+      val forthRoundCandidates = thirdRoundCandidates.filter {
+        username => ((locationMap.contains(username) &&
+                      twitterEvent.place.isDefined &&
+                      twitterEvent.place.get.country_code.isDefined && locationMap.get(username).get.equals(twitterEvent.place.get.country_code.get))
+                   || !locationMap.contains(username))
       }
 
       val lang: Option[String] = twitterEvent.lang match {
@@ -145,7 +174,7 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
           "friends_count" -> JsString(twitterEvent.user.friends_count.toString)
         )
       )
-      thirdRoundCandidates.foreach(username => connected.get(username).get.push(msg))
+      forthRoundCandidates.foreach(username => connected.get(username).get.push(msg))
 
 
   }
@@ -175,6 +204,6 @@ case class Connected(enumerator: Enumerator[JsValue])
 
 case class CannotConnect(msg: String)
 
-case class AddFilter(username: String, filter: String, followers: Option[String] = None, language: Option[String] = None)
+case class AddFilter(username: String, filter: String, followers: Option[String] = None, language: Option[String] = None, location: Option[String] = None)
 
-case class RemoveFilter(username: String, filter: String)
+case class RemoveFilter(username: String, filter: String, location: Option[String] = None)

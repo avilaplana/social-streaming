@@ -12,7 +12,7 @@ object ComponentRegistry {
 class ComponentRegistry extends Logging {
 
   //  val conf = ConfigFactory.load("application.conf")
-  val filterStrategy = FilterHttpRequester("http://localhost:8080/filter/")
+  val filterStrategy = FilterHttpRequester("http://localhost:8080/")
   val mapLanguages = Map("fr" -> "French",
     "en" -> "English",
     "ar" -> "Arab",

@@ -8,8 +8,8 @@
         <button id="stop" class="btn danger" type="submit">Stop</button>
     </span>
 
-    <div class="span6">
-        <span class="label important">Filter by Language</span>
+    <div class="pull-right">
+        <span class="label important">Language</span>
         <select id="filterByLanguage">
             <option selected>No filter</option>
             <option value="es">Spanish</option>
@@ -23,7 +23,7 @@
     <br>
 
     <div class="pull-right">
-        <span class="label important">Filter by Followers</span>
+        <span class="label important">Followers</span>
         <select id="filterByFollowers">
             <option selected>No filter</option>
             <option value="1">More than 500</option>
@@ -32,6 +32,20 @@
             <option value="4">More than 1000.000</option>
         </select>
     </div>
+    <br>
+    <br>
+    <div class="pull-right">
+        <span class="label important">Location</span>
+        <select id="filterByLocation">
+            <option selected>No filter</option>
+            <option value="GB">GB</option>
+            <option value="ES">Spain</option>
+            <option value="FR">France</option>
+            <option value="DE">Germany</option>
+            <option value="IT">Italy</option>
+        </select>
+    </div>
+
 </div>
 <div class="row"><BR><BR></a></div>
 <div id="onChat" class="row">
@@ -120,17 +134,23 @@
                 $('#stop').show()
                 $('#start').hide()
                 $('#filter').attr('disabled', 'disabled')
+                $('#filterByLanguage').attr('disabled', 'disabled')
+                $('#filterByFollowers').attr('disabled', 'disabled')
+                $('#filterByLocation').attr('disabled', 'disabled')
+
 //                if ($("#filterByLanguage").val() == 'No filter')
 //                    $.get("@routes.Application.startFilter()", {'username': "@username", 'filter': $("#filter").val()}, function (data) {
 //                        $('#perete').html(data);
 //                    });
 //                else
-                    $.get("@routes.Application.startFilter()", {'username': "@username",
-                        'filter': $("#filter").val(),
-                        'followers': $("#filterByFollowers").val(),
-                        'language': $("#filterByLanguage").val()}, function (data) {
-                        $('#perete').html(data);
-                    });
+                $.get("@routes.Application.startFilter()", {'username': "@username",
+                    'filter': $("#filter").val(),
+                    'followers': $("#filterByFollowers").val(),
+                    'language': $("#filterByLanguage").val(),
+                    'location': $("#filterByLocation").val()
+                }, function (data) {
+                    $('#perete').html(data);
+                });
 
                 return false;
             }
@@ -140,8 +160,15 @@
             function () {
                 $('#start').show()
                 $('#filter').removeAttr('disabled')
+                $('#filterByLanguage').removeAttr('disabled')
+                $('#filterByFollowers').removeAttr('disabled')
+                $('#filterByLocation').removeAttr('disabled')
+
                 $('#stop').hide()
-                $.get("@routes.Application.stopFilter()", {'username': "@username", 'filter': $("#filter").val()}, function (data) {
+                $.get("@routes.Application.stopFilter()", {
+                    'username': "@username",
+                    'filter': $("#filter").val(),
+                    'location': $("#filterByLocation").val()}, function (data) {
                     $('#perete').html(data);
                 });
                 return false;

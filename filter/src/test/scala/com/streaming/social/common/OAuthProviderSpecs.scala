@@ -9,7 +9,7 @@ class OAuthProviderSpecs extends Specification{
 
   "get oAuth header" should {
       "success" in {
-        val oauthHeader = oauth.getOAuthHeader(Map("track"-> "obama"))
+        val oauthHeader = oauth.getOAuthHeader(Map("track"-> "twitter"))
         oauthHeader.get("Authorization").isDefined must beTrue
       }
     }

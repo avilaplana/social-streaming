@@ -8,24 +8,22 @@ import com.streaming.social.mq.ProducerAdaptor
 class TwitterConnectorSpecs extends Specification {
 
 
-//  "start streaming with one filter" should {
-//    "get the streaming content from Twitter" in {
-//
-//      val dummyProducer = new ProducerAdaptor[String] {
-//        def send(message: String) {
-//          println(message)
-//        }
-//      }
-//
-//      val system = ActorSystem("MySystem")
-//      val orchestrator = system.actorOf(Props(new Master(oauth, dummyProducer, url)), name = "master")
-//      val encodedFilterBy = URLEncoder.encode("real madrid", "UTF-8")
-//      println(encodedFilterBy)
-//      orchestrator ! AddFilter(Map("track" -> "real madrid"))
-//      Thread.sleep(10000)
-//      orchestrator ! RemoveFilter(Map("track" -> "real madrid"))
-//    }
-//  }
+  "start streaming with one filter" should {
+    "get the streaming content from Twitter" in {
+
+      val dummyProducer = new ProducerAdaptor[String] {
+        def send(message: String) {
+          println(message)
+        }
+      }
+
+      val system = ActorSystem("MySystem")
+      val orchestrator = system.actorOf(Props(new Master(oauth, dummyProducer, url)), name = "master")
+      orchestrator ! AddFilter(Map("track" -> "twitter"))
+      Thread.sleep(10000)
+      orchestrator ! RemoveFilter(Map("track" -> "twitter"))
+    }
+  }
 //
 //  "start streaming with two filter" should {
 //    "get the streaming content from Twitter" in {
@@ -53,18 +51,18 @@ class TwitterConnectorSpecs extends Specification {
 //    }
 //  }
 
-  "start streaming with locations as a filter" >> {
-        val dummyProducer = new ProducerAdaptor[String] {
-          def send(message: String) {
-            println(message)
-          }
-        }
-
-        val system = ActorSystem("MySystem")
-        val orchestrator = system.actorOf(Props(new Master(oauth, dummyProducer, url)), name = "master")
-        orchestrator ! AddFilter(Map("locations" -> "EN"))
-        Thread.sleep(10000)
-        orchestrator ! RemoveFilter(Map("locations" -> "EN"))
-      }
-
+//  "start streaming with locations as a filter" >> {
+//        val dummyProducer = new ProducerAdaptor[String] {
+//          def send(message: String) {
+//            println(message)
+//          }
+//        }
+//
+//        val system = ActorSystem("MySystem")
+//        val orchestrator = system.actorOf(Props(new Master(oauth, dummyProducer, url)), name = "master")
+//        orchestrator ! AddFilter(Map("locations" -> "EN"))
+//        Thread.sleep(10000)
+//        orchestrator ! RemoveFilter(Map("locations" -> "EN"))
+//      }
+//
 }

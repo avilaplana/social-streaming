@@ -1,58 +1,67 @@
 @(username: String)(implicit request: RequestHeader)
 
-@main(Some(username)) {
-<div class="row">
-    <span class="span8">
-        <input id="filter" name="filter" type="text" class="input-medium">
-        <button id="start" class="btn primary" type="submit">Search</button>
-        <button id="stop" class="btn danger" type="submit">Stop</button>
-    </span>
+@sidebar = {
 
-    <div class="pull-right">
-        <span class="label important">Language</span>
-        <select id="filterByLanguage">
-            <option selected>No filter</option>
-            <option value="es">Spanish</option>
-            <option value="en">English</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="it">Italian</option>
-        </select>
-    </div>
-    <br>
-    <br>
+<div class="well">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#home" data-toggle="tab">Twitter</a></li>
+        <li><a href="#profile" data-toggle="tab">Facebook</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane active in" id="home">
+            <form id="tab" class="form-search">
+                <span class="label label-important">Language</span>
+                <select id="filterByLanguage">
+                    <option selected>No filter</option>
+                    <option value="es">Spanish</option>
+                    <option value="en">English</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                </select>
 
-    <div class="pull-right">
-        <span class="label important">Followers</span>
-        <select id="filterByFollowers">
-            <option selected>No filter</option>
-            <option value="1">More than 500</option>
-            <option value="2">More than 5.000</option>
-            <option value="3">More than 50.000</option>
-            <option value="4">More than 1000.000</option>
-        </select>
-    </div>
-    <br>
-    <br>
-    <div class="pull-right">
-        <span class="label important">Location</span>
-        <select id="filterByLocation">
-            <option selected>No filter</option>
-            <option value="GB">GB</option>
-            <option value="ES">Spain</option>
-            <option value="FR">France</option>
-            <option value="DE">Germany</option>
-            <option value="IT">Italy</option>
-        </select>
-    </div>
+                <div class="side_component">
+                    <span class="label label-important">Followers</span>
+                    <select id="filterByFollowers">
+                        <option selected>No filter</option>
+                        <option value="1">More than 500</option>
+                        <option value="2">More than 5.000</option>
+                        <option value="3">More than 50.000</option>
+                        <option value="4">More than 1000.000</option>
+                    </select>
+                </div>
+                <div class="side_component">
+                    <span class="label label-important ">Location</span>
+                    <select id="filterByLocation">
+                        <option selected>No filter</option>
+                        <option value="GB">GB</option>
+                        <option value="ES">Spain</option>
+                        <option value="FR">France</option>
+                        <option value="DE">Germany</option>
+                        <option value="IT">Italy</option>
+                    </select>
+                </div>
+                <div class="input-append side_component">
+                    <input id="filter" type="text" class="span6 search-query">
+                    <button id="start" type="submit" class="btn btn-info custom">Search</button>
+                    <button id="stop" class="btn btn-danger custom" type="submit">Stop</button>
+                </div>
+            </form>
 
-</div>
-<div class="row"><BR><BR></a></div>
-<div id="onChat" class="row">
-    <div class="span14" id="main">
-        <div id="twitter">
+        </div>
+        <div class="tab-pane fade" id="profile">
+            Under construction
         </div>
     </div>
+</div>
+<input id="currentFilter" type="hidden" name="currentFilter" >
+
+}
+
+@main(Some(username))(sidebar) {
+<div class="well">
+<ul id="search-nav" class="nav nav-tabs"></ul>
+    <div id="mySearchTabContent" class="tab-content"></div>
 </div>
 
 
@@ -90,17 +99,17 @@
             if (data.tweet != null) {
                 var el = $('<div class="well well-small" >' +
                         '<div class="row">' +
-                        '<div class="span2"><img id="url" data-src=""></div>' +
-                        '<div class="span3"><strong><span>User: </span></strong><span id="tweeterUser"></span></div>' +
+                        '<div class="span2 main_left_image"><img id="url" data-src=""></div>' +
+                        '<div class="span2"><i class="icon-user"></i> <span id="tweeterUser"></span></div>' +
                         '<div class="span3"><span id="created_at"></span></div>' +
-                        '<div class="span3"><strong><span>Language: </span></strong><span id="lang"></span></div>' +
+                        '<div class="span2"><i class="icon-comment"></i> <span id="lang"></span></div>' +
                         '<div class="span2"><strong><span>Followers: </span></strong><span id="followers"></span></div>' +
                         '</div>' +
                         '<div class="media">' +
 //                        '<a class="pull-left" href="#">' +
 //                        '<img id="url" class="media-object" data-src="">' +
 //                        '</a>' +
-                        '<div class="media-body"><br><img src="@routes.Assets.at("images/bird_blue_16.png")">' +
+                        '<div class="media-body"><br><img src="@routes.Assets.at("img/bird_blue_16.png")">' +
                         '<span id="tweet"></span></div>' +
                         '</div></div>')
 
@@ -111,7 +120,8 @@
                 $("#followers", el).text(data.followers_count)
                 $("#lang", el).text(data.lang)
                 $("#url", el).attr("src", data.url)
-                $('#twitter').prepend(el)
+                $('#twitter-' + $("#filter").val()).append(el)
+
             } else {
                 var el = $('<div class="message"><span></span><p></p></div>')
                 $("span", el).text(data.user)
@@ -119,7 +129,7 @@
                 $("p", el).text(data.message)
                 $(el).addClass(data.kind)
                 if (data.user == '@username') $(el).addClass('me')
-                $('#twitter').append(el)
+                $('#twitter').prepend(el)
             }
 
         }
@@ -131,6 +141,25 @@
 
     jQuery("#start").click(
             function () {
+                if ($("#currentFilter").val()!="") {
+                    $('#li-tab-search-' + $("#currentFilter").val()).removeClass()
+                    $("#Search" + $("#currentFilter").val()).removeClass()
+                    $("#Search" + $("#currentFilter").val()).addClass("tab-pane fade")
+                }
+                $("#currentFilter").val($("#filter").val())
+
+                var el1 = $('<li id="li-tab-search-' + $("#filter").val() + '"  class="active"><a id="tab-search" href="" data-toggle="tab"></a></li>')
+                $("#tab-search", el1).text($("#filter").val())
+                $("#tab-search", el1).attr("href", '#Search' + $("#filter").val())
+                $('#search-nav').append(el1)
+
+                var el2 = $('<div class="tab-pane active in" id="Search' + $("#filter").val() + '">' +
+                                        '<div id="onChat" class="row" style="display: block;">' +
+                                        '<div class="span13 main_left_component" id="main">' +
+                                        '<div id="twitter-' + $("#filter").val() + '"></div>' +
+                                        '</div></div></div></div>')
+                $('#mySearchTabContent').append(el2)
+
                 $('#stop').show()
                 $('#start').hide()
                 $('#filter').attr('disabled', 'disabled')
@@ -178,3 +207,6 @@
 </script>
 
 }
+
+
+

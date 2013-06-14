@@ -1,7 +1,7 @@
 package com.streaming.social.common
 
 import org.specs2.mutable.Specification
-import com.streaming.social.actors.{User, TwitterEvent}
+import com.streaming.social.actors.{Place, User, TwitterEvent}
 import java.util.{Calendar, Date}
 
 
@@ -21,12 +21,12 @@ class JsonDeserializerSpecs extends Specification {
         User(profile_image_url = "http://test.com/images/test.jpg",
              screen_name = "testuser",
             followers_count = 99,
-        friends_count = 199)))
+        friends_count = 199), Some(Place(full_name = Some("Murcia, Spain"), country_code = Some("ES")))))
 
       json must_== jsonExpected
     }
   }
 
-  val jsonExpected = """{"text":"this is a test","created_at":"Fri Feb 1 00:00:00 +0000 2013","lang":"en","user":{"profile_image_url":"http://test.com/images/test.jpg","screen_name":"testuser","followers_count":99,"friends_count":199}}"""
+  val jsonExpected = """{"text":"this is a test","created_at":"Fri Feb 1 00:00:00 +0000 2013","lang":"en","user":{"profile_image_url":"http://test.com/images/test.jpg","screen_name":"testuser","followers_count":99,"friends_count":199},"place":{"full_name":"Murcia, Spain","country_code":"ES"}}"""
 
 }

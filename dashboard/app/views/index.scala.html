@@ -1,6 +1,6 @@
 @()(implicit flash: Flash)
-
-@main(None) {
+@sidebar = {}
+@main(None)(sidebar) {
 
     @flash.get("error").map { errorMessage =>
 

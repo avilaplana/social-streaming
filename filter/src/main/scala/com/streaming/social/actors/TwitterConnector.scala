@@ -14,10 +14,6 @@ import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorRef) extends Actor with Logging {
 
   val httpClient = new DefaultHttpClient
-  val creds = new UsernamePasswordCredentials(
-    "alvarovilaplana", "RAFAEL80murcia");
-  httpClient.getCredentialsProvider()
-    .setCredentials(AuthScope.ANY, creds);
   var sessionId: Option[String] = None
 
   var httpPost = new HttpPost(url)
@@ -94,7 +90,7 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
 
   private def streamByCriteria(parameters: Map[String, String], sessionId: Option[String]) {
 
-    //    addHeader(httpPost, oAuthProvider.getOAuthHeader(parameters))
+    addHeader(httpPost, oAuthProvider.getOAuthHeader(parameters))
     val httpResponse = httpClient.execute(addValuePairToBody(httpPost, parameters))
     httpResponse.getStatusLine.getStatusCode match {
       case 200 => self ! ReadStream(httpResponse.getEntity.getContent, sessionId)
@@ -108,7 +104,7 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
   private def extractBody(instream: InputStream, sessionId: Option[String]) {
     var br: BufferedReader = new BufferedReader(new InputStreamReader(instream))
     Option(br.readLine) match {
-      case Some(tweet) if (tweet.trim.length == 0 || tweet.contains("\"limit\":{\"track\"")) => warn("Ignore it")
+      case Some(tweet) if (tweet.trim.length == 0 || tweet.contains("\"limit\":{\"track\"")) => warn("Ignore it"); self ! ReadStream(instream, sessionId)
       case Some(tweet) => {
         master ! Tweet(tweet)
         self ! ReadStream(instream, sessionId)
@@ -126,8 +122,10 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
     else throw new RuntimeException()
   }
 
-  private def buidParameters(filtersToApply:  scala.collection.Set[String]) = {
-    val filterByLocations = filtersToApply.filter{element => element.contains(",")}
+  private def buidParameters(filtersToApply: scala.collection.Set[String]) = {
+    val filterByLocations = filtersToApply.filter {
+      element => element.contains(",")
+    }
     val filterByStrings = filtersToApply.filterNot(element => element.contains(","))
     var parameters = collection.immutable.Map.empty[String, String]
     if (!filterByLocations.isEmpty) parameters = parameters + ("locations" -> filterByLocations.mkString(","))

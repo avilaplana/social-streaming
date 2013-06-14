@@ -2,8 +2,21 @@ html, body {
     background-color: #eee;
 }
 body {
-    padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
+    padding-top: 0px; /* 40px to make the container go all the way to the bottom of the topbar */
 }
+
+.side_component {
+    padding-top: 10px ;
+}
+
+.main_left_component {
+    padding-left: 20px ;
+}
+
+.main_left_image {
+    padding-left: 25px ;
+}
+
 .container > footer p {
     text-align: center; /* center align it with the container */
 }

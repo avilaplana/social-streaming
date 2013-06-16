@@ -148,12 +148,18 @@
                 }
                 $("#currentFilter").val($("#filter").val())
 
-                var el1 = $('<li id="li-tab-search-' + $("#filter").val() + '"  class="active"><a id="tab-search" href="" data-toggle="tab"></a></li>')
+                var el1 = $('<li id="li-tab-search-' + $("#filter").val() + '"  class="active">' +
+                        '<a id="tab-search" href="" data-toggle="tab"></a></li>')
                 $("#tab-search", el1).text($("#filter").val())
                 $("#tab-search", el1).attr("href", '#Search' + $("#filter").val())
                 $('#search-nav').append(el1)
 
                 var el2 = $('<div class="tab-pane active in" id="Search' + $("#filter").val() + '">' +
+                                        '<div class="span3"><span class="label label-info">Language</span>' + $("#filterByLanguage option:selected").text() + '</div>' +
+                                        '<div class="span4"><span class="label label-info">Followers</span>' + $("#filterByFollowers option:selected").text() + '</div>' +
+                                        '<div class="span3"><span class="label label-info">Location</span>' + $("#filterByLocation option:selected").text() + '</div>' +
+//                                        '<div class="span2"></div><span class="label label-info">Followers</span> ' + $("#list option[value='" + $("#filterByFollowers").val() +"']").text() + '</div>' +
+//                                        '<div class="span2"></div><span class="label label-info">Location</span> ' + $("#list option[value='" + $("#filterByLocation").val() +"']").text() + '</div>' +
                                         '<div id="onChat" class="row" style="display: block;">' +
                                         '<div class="span13 main_left_component" id="main">' +
                                         '<div id="twitter-' + $("#filter").val() + '"></div>' +

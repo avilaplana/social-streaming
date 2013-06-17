@@ -15,6 +15,19 @@ import com.streaming.dashboard.common.Logging
 import collection.mutable.ListBuffer
 import com.streaming.dashboard.rest.FilterAdapter
 import com.streaming.dashboard.registry
+import play.api.libs.json.JsArray
+import com.streaming.dashboard.actor.Connected
+import com.streaming.dashboard.actor.Join
+import com.streaming.dashboard.actor.Quit
+import play.api.libs.json.JsString
+import scala.Some
+import com.streaming.dashboard.actor.Recommendations
+import com.streaming.dashboard.actor.CannotConnect
+import com.streaming.dashboard.actor.RemoveFilter
+import com.streaming.dashboard.actor.TwitterEvent
+import com.streaming.dashboard.actor.StartConsumer
+import com.streaming.dashboard.actor.AddFilter
+import play.api.libs.json.JsObject
 
 object Master extends Logging {
 
@@ -51,11 +64,13 @@ object Master extends Logging {
 class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
 
   val consumerActor = Akka.system.actorOf(Props(new Consumer(self)), "consumer")
+  val recommendationActor = Akka.system.actorOf(Props(new RecommendationsConsumer(self)), "recommendationConsumer")
   var connected = Map.empty[String, Concurrent.Channel[JsValue]]
   var filterMap = Map.empty[String, ListBuffer[String]]
   var locationMap = Map.empty[String, String]
   var languageMap = Map.empty[String, String]
   var followersMap = Map.empty[String, String]
+  val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
   def receive = {
 
@@ -90,10 +105,9 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
           if (entry._2.size > 1) filterMap = filterMap + (entry._1 -> (usernames -= username))
           else filterMap = filterMap - entry._1
       }
-
     }
 
-    case StartConsumer => consumerActor ! StartConsumer
+    case StartConsumer => consumerActor ! StartConsumer; recommendationActor ! StartConsumer
 
     case AddFilter(username, filter, followers, language, location) => {
       filterMap.get(filter) match {
@@ -137,9 +151,9 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
       locationMap = locationMap - username
     }
 
-    case twitterEvent: TwitterEvent =>
+    case twitterEvent: TwitterEvent => {
 
-      debug(s"Ready to filter $twitterEvent")
+      //      debug(s"Ready to filter $twitterEvent")
       val firstRoundCandidates = filterMap.filter(element => twitterEvent.text.toLowerCase().contains(element._1.toLowerCase()))
       val flattenList = firstRoundCandidates.values.flatten
       val secondRoundCandidates = flattenList.filter {
@@ -152,9 +166,9 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
 
       val forthRoundCandidates = thirdRoundCandidates.filter {
         username => ((locationMap.contains(username) &&
-                      twitterEvent.place.isDefined &&
-                      twitterEvent.place.get.country_code.isDefined && locationMap.get(username).get.equals(twitterEvent.place.get.country_code.get))
-                   || !locationMap.contains(username))
+          twitterEvent.place.isDefined &&
+          twitterEvent.place.get.country_code.isDefined && locationMap.get(username).get.equals(twitterEvent.place.get.country_code.get))
+          || !locationMap.contains(username))
       }
 
       val lang: Option[String] = twitterEvent.lang match {
@@ -175,7 +189,28 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
         )
       )
       forthRoundCandidates.foreach(username => connected.get(username).get.push(msg))
+    }
 
+    case recommendations: Recommendations => {
+      val msg = JsObject(
+        "recommendations" -> JsArray(
+          JsObject(
+            "language" -> JsString("es") ::
+              "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
+              :: Nil)
+            ::
+            JsObject(
+              "language" -> JsString("en") ::
+                "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
+                :: Nil
+            ) :: Nil
+        ) :: Nil
+      )
+      debug(s"About to send the recommendation $msg to $chatChannel")
+      //todo this needs to be sent in broadcast
+      connected.values.foreach(channel => channel.push(msg))
+
+    }
 
   }
 

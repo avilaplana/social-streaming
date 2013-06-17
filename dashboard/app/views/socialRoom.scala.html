@@ -4,14 +4,14 @@
 
 <div class="well">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#home" data-toggle="tab">Twitter</a></li>
-        <li><a href="#profile" data-toggle="tab">Facebook</a></li>
+        <li class="active"><a href="#home" data-toggle="tab"><i class="icon-twitter-sign"></i> Twitter</a></li>
+        <li><a href="#profile" data-toggle="tab"><i class="icon-facebook-sign"></i> Facebook</a></li>
     </ul>
     <div id="myTabContent" class="tab-content">
         <div class="tab-pane active in" id="home">
             <form id="tab" class="form-search">
                 <span class="label label-important">Language</span>
-                <select id="filterByLanguage">
+                <select class="span7" id="filterByLanguage">
                     <option selected>No filter</option>
                     <option value="es">Spanish</option>
                     <option value="en">English</option>
@@ -22,7 +22,7 @@
 
                 <div class="side_component">
                     <span class="label label-important">Followers</span>
-                    <select id="filterByFollowers">
+                    <select class="span7" id="filterByFollowers">
                         <option selected>No filter</option>
                         <option value="1">More than 500</option>
                         <option value="2">More than 5.000</option>
@@ -32,7 +32,7 @@
                 </div>
                 <div class="side_component">
                     <span class="label label-important ">Location</span>
-                    <select id="filterByLocation">
+                    <select class="span7" id="filterByLocation">
                         <option selected>No filter</option>
                         <option value="GB">GB</option>
                         <option value="ES">Spain</option>
@@ -42,7 +42,7 @@
                     </select>
                 </div>
                 <div class="input-append side_component">
-                    <input id="filter" type="text" class="span6 search-query">
+                    <input id="filter" type="text" class="span8 search-query">
                     <button id="start" type="submit" class="btn btn-info custom">Search</button>
                     <button id="stop" class="btn btn-danger custom" type="submit">Stop</button>
                 </div>
@@ -54,13 +54,45 @@
         </div>
     </div>
 </div>
-<input id="currentFilter" type="hidden" name="currentFilter" >
+
+<div class="well">
+    <div>
+        <i class="icon-spinner icon-spin icon-large"></i> Recommendations in Real Time......
+        <hr>
+    </div>
+
+    <div id="recommendations">
+        <div class="form-search"><span class="label label-important">Language</span>
+            <select id="recommendationFilterByLanguage" class="span7">
+                <option selected>No filter</option>
+                <option value="es">Spanish</option>
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+            </select></div>
+
+        <div>
+            <select class="span7" id="recommendationSelect">
+                <option selected>No Recommendation</option>
+                <option value="#Madrid">#Madrid</option>
+                <option value="#Madrid">#Madrid</option>
+                <option value="#Madrid">#Madrid</option>
+                <option value="#Madrid">#Madrid</option>
+                <option value="#Madrid">#Madrid</option>
+            </select>
+            <button id="startRecommendation" type="submit" class="btn btn-info custom">Search</button>
+            <button id="stopRecommendation" class="btn btn-danger custom" type="submit">Stop</button>
+        </div>
+    </div>
+</div>
+<input id="currentFilter" type="hidden" name="currentFilter">
 
 }
 
 @main(Some(username))(sidebar) {
 <div class="well">
-<ul id="search-nav" class="nav nav-tabs"></ul>
+    <ul id="search-nav" class="nav nav-tabs"></ul>
     <div id="mySearchTabContent" class="tab-content"></div>
 </div>
 
@@ -71,6 +103,9 @@
     $(function () {
 
         $('#stop').hide()
+        $('#recommendations').hide()
+
+
         var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
         var chatSocket = new WS("@routes.Application.stream(username).webSocketURL()")
 
@@ -95,8 +130,9 @@
             }
 
             // Create the message element
+            if (data.recommendations != null) {
 
-            if (data.tweet != null) {
+            } else if (data.tweet != null) {
                 var el = $('<div class="well well-small" >' +
                         '<div class="row">' +
                         '<div class="span2 main_left_image"><img id="url" data-src=""></div>' +
@@ -109,7 +145,7 @@
 //                        '<a class="pull-left" href="#">' +
 //                        '<img id="url" class="media-object" data-src="">' +
 //                        '</a>' +
-                        '<div class="media-body"><br><img src="@routes.Assets.at("img/bird_blue_16.png")">' +
+                        '<div class="media-body"><br><i class="icon-twitter"></i>' +
                         '<span id="tweet"></span></div>' +
                         '</div></div>')
 
@@ -120,7 +156,7 @@
                 $("#followers", el).text(data.followers_count)
                 $("#lang", el).text(data.lang)
                 $("#url", el).attr("src", data.url)
-                $('#twitter-' + $("#filter").val()).append(el)
+                $('#twitter-' + $("#filter").val()).prepend(el)
 
             } else {
                 var el = $('<div class="message"><span></span><p></p></div>')
@@ -141,7 +177,7 @@
 
     jQuery("#start").click(
             function () {
-                if ($("#currentFilter").val()!="") {
+                if ($("#currentFilter").val() != "") {
                     $('#li-tab-search-' + $("#currentFilter").val()).removeClass()
                     $("#Search" + $("#currentFilter").val()).removeClass()
                     $("#Search" + $("#currentFilter").val()).addClass("tab-pane fade")
@@ -155,15 +191,13 @@
                 $('#search-nav').append(el1)
 
                 var el2 = $('<div class="tab-pane active in" id="Search' + $("#filter").val() + '">' +
-                                        '<div class="span3"><span class="label label-info">Language</span>' + $("#filterByLanguage option:selected").text() + '</div>' +
-                                        '<div class="span4"><span class="label label-info">Followers</span>' + $("#filterByFollowers option:selected").text() + '</div>' +
-                                        '<div class="span3"><span class="label label-info">Location</span>' + $("#filterByLocation option:selected").text() + '</div>' +
-//                                        '<div class="span2"></div><span class="label label-info">Followers</span> ' + $("#list option[value='" + $("#filterByFollowers").val() +"']").text() + '</div>' +
-//                                        '<div class="span2"></div><span class="label label-info">Location</span> ' + $("#list option[value='" + $("#filterByLocation").val() +"']").text() + '</div>' +
-                                        '<div id="onChat" class="row" style="display: block;">' +
-                                        '<div class="span13 main_left_component" id="main">' +
-                                        '<div id="twitter-' + $("#filter").val() + '"></div>' +
-                                        '</div></div></div></div>')
+                        '<div class="span3"><span class="label label-info">Language</span><span> ' + $("#filterByLanguage option:selected").text() + '</span></div>' +
+                        '<div class="span4"><span class="label label-info">Followers</span><span> ' + $("#filterByFollowers option:selected").text() + '</span></div>' +
+                        '<div class="span3"><span class="label label-info">Location</span><span> ' + $("#filterByLocation option:selected").text() + '</span></div>' +
+                        '<div id="onChat" class="row" style="display: block;">' +
+                        '<div class="span13 main_left_component" id="main">' +
+                        '<div id="twitter-' + $("#filter").val() + '"></div>' +
+                        '</div></div></div></div>')
                 $('#mySearchTabContent').append(el2)
 
                 $('#stop').show()
@@ -209,6 +243,13 @@
                 return false;
             }
     )
+
+
+    jQuery("#recommendationFilterByLanguage").change(
+            function () {
+                alert("chosing something")
+            })
+
 
 </script>
 

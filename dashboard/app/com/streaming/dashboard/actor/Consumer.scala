@@ -53,3 +53,8 @@ case class TwitterEvent(val text: String, val created_at: Date, val lang: Option
 case class User(val profile_image_url: String, val screen_name: String, val followers_count: Integer, val friends_count: Integer)
 
 case class Place(val full_name : Option[String], val country_code : Option[String])
+
+case class Recommendations(val listRecommendationds : List[Recommendation])
+
+case class Recommendation(val language : String, candidates: List[String])
+

@@ -27,11 +27,11 @@ class RecommendationsConsumer(master: ActorRef) extends Actor with Logging {
     self ! ConsumeMessage(consumer)
   }
 
-  // todo the consumer does not know anything about filtering. It is not responsible
   def consumeMessage(consumer: QueueingConsumer) {
     val delivery = consumer.nextDelivery();
     val msg = new String(delivery.getBody());
-    val event = new JsonDeserializer().extractJsonToObject(msg)
+    debug(s"Recommendation received $msg")
+    val event = new JsonDeserializer().extractJsonToRecommendations(msg)
     master ! event
     self ! ConsumeMessage(consumer)
   }

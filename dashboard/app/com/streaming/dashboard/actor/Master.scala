@@ -16,17 +16,8 @@ import collection.mutable.ListBuffer
 import com.streaming.dashboard.rest.FilterAdapter
 import com.streaming.dashboard.registry
 import play.api.libs.json.JsArray
-import com.streaming.dashboard.actor.Connected
-import com.streaming.dashboard.actor.Join
-import com.streaming.dashboard.actor.Quit
 import play.api.libs.json.JsString
 import scala.Some
-import com.streaming.dashboard.actor.Recommendations
-import com.streaming.dashboard.actor.CannotConnect
-import com.streaming.dashboard.actor.RemoveFilter
-import com.streaming.dashboard.actor.TwitterEvent
-import com.streaming.dashboard.actor.StartConsumer
-import com.streaming.dashboard.actor.AddFilter
 import play.api.libs.json.JsObject
 
 object Master extends Logging {
@@ -192,24 +183,25 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
     }
 
     case recommendations: Recommendations => {
-      val msg = JsObject(
-        "recommendations" -> JsArray(
-          JsObject(
-            "language" -> JsString("es") ::
-              "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
-              :: Nil)
-            ::
+      if (recommendations.listRecommendationds.size > 0) {
+        val msg = JsObject(
+          "recommendations" -> JsArray(
             JsObject(
-              "language" -> JsString("en") ::
+              "language" -> JsString("es") ::
                 "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
-                :: Nil
-            ) :: Nil
-        ) :: Nil
-      )
-      debug(s"About to send the recommendation $msg to $chatChannel")
-      //todo this needs to be sent in broadcast
-      connected.values.foreach(channel => channel.push(msg))
-
+                :: Nil)
+              ::
+              JsObject(
+                "language" -> JsString("en") ::
+                  "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
+                  :: Nil
+              ) :: Nil
+          ) :: Nil
+        )
+        debug(s"About to send the recommendation $msg to $chatChannel")
+        //todo this needs to be sent in broadcast
+        connected.values.foreach(channel => channel.push(msg))
+      }
     }
 
   }

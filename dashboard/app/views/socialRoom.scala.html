@@ -56,33 +56,17 @@
 </div>
 
 <div class="well">
-    <div>
-        <i class="icon-spinner icon-spin icon-large"></i> Recommendations in Real Time......
+    <div id="loadingRecommendationMessage">
+        <i class="icon-spinner icon-spin icon-large"></i><span> Recommendations in Real Time......</span>
         <hr>
     </div>
 
-    <div id="recommendations">
-        <div class="form-search"><span class="label label-important">Language</span>
-            <select id="recommendationFilterByLanguage" class="span7">
-                <option selected>No filter</option>
-                <option value="es">Spanish</option>
-                <option value="en">English</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="it">Italian</option>
-            </select></div>
-
-        <div>
-            <select class="span7" id="recommendationSelect">
-                <option selected>No Recommendation</option>
-                <option value="#Madrid">#Madrid</option>
-                <option value="#Madrid">#Madrid</option>
-                <option value="#Madrid">#Madrid</option>
-                <option value="#Madrid">#Madrid</option>
-                <option value="#Madrid">#Madrid</option>
-            </select>
-            <button id="startRecommendation" type="submit" class="btn btn-info custom">Search</button>
-            <button id="stopRecommendation" class="btn btn-danger custom" type="submit">Stop</button>
+    <div>
+        <div class="well" style="width:300px; padding: 8px 0;">
+            <div style="overflow-y: scroll; overflow-x: hidden; height: 500px;">
+                <ul id="recommendations" class="nav nav-list">
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -91,7 +75,7 @@
 }
 
 @main(Some(username))(sidebar) {
-<div class="well">
+<div id="searchResults" class="well">
     <ul id="search-nav" class="nav nav-tabs"></ul>
     <div id="mySearchTabContent" class="tab-content"></div>
 </div>
@@ -104,6 +88,7 @@
 
         $('#stop').hide()
         $('#recommendations').hide()
+        $('#searchResults').hide()
 
 
         var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
@@ -131,8 +116,21 @@
 
             // Create the message element
             if (data.recommendations != null) {
+                $('#recommendations').show()
+                var el = 'Alvaro'
+                for (var i = 0; i < data.recommendations.length; i++) {
+                    el = el + '<li><label class="tree-toggler nav-header">' + data.recommendations[i].language + '</label><ul class="nav nav-list tree">'
+                    for (var j = 0; j < data.recommendations[i].candidates.length; j++) {
+                        el = el + '<li><a href="#">' + data.recommendations[i].candidates[j] + '</a></li>'
+                    }
+                    el = el + '</ul></li><li class="divider"></li>'
+                }
+//                alert(data.recommendations[0].candidates[0])
+//                $("#loadingRecommendationMessage").text(data.recommendations)
+                $('#recommendations').append(el)
 
-            } else if (data.tweet != null) {
+            }
+            else if (data.tweet != null) {
                 var el = $('<div class="well well-small" >' +
                         '<div class="row">' +
                         '<div class="span2 main_left_image"><img id="url" data-src=""></div>' +
@@ -177,6 +175,7 @@
 
     jQuery("#start").click(
             function () {
+                $('#searchResults').show()
                 if ($("#currentFilter").val() != "") {
                     $('#li-tab-search-' + $("#currentFilter").val()).removeClass()
                     $("#Search" + $("#currentFilter").val()).removeClass()
@@ -194,6 +193,7 @@
                         '<div class="span3"><span class="label label-info">Language</span><span> ' + $("#filterByLanguage option:selected").text() + '</span></div>' +
                         '<div class="span4"><span class="label label-info">Followers</span><span> ' + $("#filterByFollowers option:selected").text() + '</span></div>' +
                         '<div class="span3"><span class="label label-info">Location</span><span> ' + $("#filterByLocation option:selected").text() + '</span></div>' +
+                        '<div class="span2"><i class="icon-trash"></i><span> Delete</span></div>' +
                         '<div id="onChat" class="row" style="display: block;">' +
                         '<div class="span13 main_left_component" id="main">' +
                         '<div id="twitter-' + $("#filter").val() + '"></div>' +
@@ -244,11 +244,9 @@
             }
     )
 
-
-    jQuery("#recommendationFilterByLanguage").change(
-            function () {
-                alert("chosing something")
-            })
+    $(document.body).on("click", "label.tree-toggler", function () {
+        $(this).parent().children('ul.tree').toggle(300);
+    })
 
 
 </script>

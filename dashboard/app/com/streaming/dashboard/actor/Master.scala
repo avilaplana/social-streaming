@@ -184,20 +184,33 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
 
     case recommendations: Recommendations => {
       if (recommendations.listRecommendationds.size > 0) {
-        val msg = JsObject(
-          "recommendations" -> JsArray(
-            JsObject(
-              "language" -> JsString("es") ::
-                "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
-                :: Nil)
-              ::
-              JsObject(
-                "language" -> JsString("en") ::
-                  "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
-                  :: Nil
-              ) :: Nil
-          ) :: Nil
-        )
+//        val msg = JsObject(
+//          "recommendations" -> JsArray(
+//            JsObject(
+//              "language" -> JsString("es") ::
+//                "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
+//                :: Nil)
+//              ::
+//              JsObject(
+//                "language" -> JsString("en") ::
+//                  "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
+//                  :: Nil
+//              ) :: Nil
+//          ) :: Nil
+//        )
+
+        val recommnedationList = ListBuffer.empty[JsValue]
+        recommendations.listRecommendationds.foreach {
+          recommendation =>
+            val lang = recommendation.language
+            val candidateList = ListBuffer.empty[JsString]
+            recommendation.candidates.foreach {
+              candidate => candidateList += JsString(candidate)
+            }
+            recommnedationList += JsObject("language" -> JsString(lang) :: "candidates" -> JsArray(candidateList) :: Nil)
+        }
+
+        val msg = JsObject("recommendations" -> JsArray(recommnedationList.toSeq) :: Nil)
         debug(s"About to send the recommendation $msg to $chatChannel")
         //todo this needs to be sent in broadcast
         connected.values.foreach(channel => channel.push(msg))

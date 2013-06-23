@@ -12,7 +12,7 @@
             <form id="tab" class="form-search">
                 <span class="label label-important">Language</span>
                 <select class="span7" id="filterByLanguage">
-                    <option selected>No filter</option>
+                    <option value="Nofilter" selected>No filter</option>
                     <option value="es">Spanish</option>
                     <option value="en">English</option>
                     <option value="fr">French</option>
@@ -23,7 +23,7 @@
                 <div class="side_component">
                     <span class="label label-important">Followers</span>
                     <select class="span7" id="filterByFollowers">
-                        <option selected>No filter</option>
+                        <option value="Nofilter" selected>No filter</option>
                         <option value="1">More than 500</option>
                         <option value="2">More than 5.000</option>
                         <option value="3">More than 50.000</option>
@@ -33,7 +33,7 @@
                 <div class="side_component">
                     <span class="label label-important ">Location</span>
                     <select class="span7" id="filterByLocation">
-                        <option selected>No filter</option>
+                        <option value="Nofilter" selected>No filter</option>
                         <option value="GB">GB</option>
                         <option value="ES">Spain</option>
                         <option value="FR">France</option>
@@ -62,7 +62,7 @@
     </div>
 
     <div>
-        <div class="well" style="width:300px; padding: 8px 0;">
+        <div class="well" style="width:250px; padding: 8px 0;">
             <div style="overflow-y: scroll; overflow-x: hidden; height: 500px;">
                 <ul id="recommendations" class="nav nav-list">
                 </ul>
@@ -70,7 +70,6 @@
         </div>
     </div>
 </div>
-<input id="currentFilter" type="hidden" name="currentFilter">
 
 }
 
@@ -84,169 +83,215 @@
 <script type="text/javascript" charset="utf-8">
 
 
-    $(function () {
+$(function () {
 
-        $('#stop').hide()
-        $('#recommendations').hide()
-        $('#searchResults').hide()
+    $('#stop').hide()
+    $('#recommendations').hide()
+    $('#searchResults').hide()
 
 
-        var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-        var chatSocket = new WS("@routes.Application.stream(username).webSocketURL()")
+    var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
+    var chatSocket = new WS("@routes.Application.stream(username).webSocketURL()")
 
-        var sendMessage = function () {
-            chatSocket.send(JSON.stringify(
-                    {text: $("#talk").val()}
-            ))
-            $("#talk").val('')
+    var sendMessage = function () {
+        chatSocket.send(JSON.stringify(
+                {text: $("#talk").val()}
+        ))
+        $("#talk").val('')
+    }
+
+    var receiveEvent = function (event) {
+        var data = JSON.parse(event.data)
+
+        // Handle errors
+        if (data.error) {
+            chatSocket.close()
+            $("#onError span").text(data.error)
+            $("#onError").show()
+            return
+        } else {
+            $("#onChat").show()
         }
 
-        var receiveEvent = function (event) {
-            var data = JSON.parse(event.data)
+        // Create the message element
+        if (data.recommendations != null) {
 
-            // Handle errors
-            if (data.error) {
-                chatSocket.close()
-                $("#onError span").text(data.error)
-                $("#onError").show()
-                return
-            } else {
-                $("#onChat").show()
-            }
-
-            // Create the message element
-            if (data.recommendations != null) {
-                $('#recommendations').show()
-                var el = 'Alvaro'
-                for (var i = 0; i < data.recommendations.length; i++) {
-                    el = el + '<li><label class="tree-toggler nav-header">' + data.recommendations[i].language + '</label><ul class="nav nav-list tree">'
-                    for (var j = 0; j < data.recommendations[i].candidates.length; j++) {
-                        el = el + '<li><a href="#">' + data.recommendations[i].candidates[j] + '</a></li>'
-                    }
-                    el = el + '</ul></li><li class="divider"></li>'
+            $('#recommendationList').remove()
+            $('#recommendations').show()
+            var el = '<div id="recommendationList">'
+            for (var i = 0; i < data.recommendations.length; i++) {
+                el = el + '<li><label class="tree-toggler nav-header">' + data.recommendations[i].language + '</label><ul class="nav nav-list tree">'
+                for (var j = 0; j < data.recommendations[i].candidates.length; j++) {
+                    el = el + '<li><a href="#">' + data.recommendations[i].candidates[j] + '</a></li>'
                 }
-//                alert(data.recommendations[0].candidates[0])
-//                $("#loadingRecommendationMessage").text(data.recommendations)
-                $('#recommendations').append(el)
-
+                el = el + '</ul></li><li class="divider"></li>'
             }
-            else if (data.tweet != null) {
-                var el = $('<div class="well well-small" >' +
-                        '<div class="row">' +
-                        '<div class="span2 main_left_image"><img id="url" data-src=""></div>' +
-                        '<div class="span2"><i class="icon-user"></i> <span id="tweeterUser"></span></div>' +
-                        '<div class="span3"><span id="created_at"></span></div>' +
-                        '<div class="span2"><i class="icon-comment"></i> <span id="lang"></span></div>' +
-                        '<div class="span2"><strong><span>Followers: </span></strong><span id="followers"></span></div>' +
-                        '</div>' +
-                        '<div class="media">' +
+            el = el + '</div>'
+            $('#recommendations').append(el)
+
+        }
+        else if (data.tweet != null) {
+            var el = $('<div class="well well-small" >' +
+                    '<div class="row">' +
+                    '<div class="span2 main_left_image"><img id="url" data-src=""></div>' +
+                    '<div class="span2"><i class="icon-user"></i> <span id="tweeterUser"></span></div>' +
+                    '<div class="span3"><span id="created_at"></span></div>' +
+                    '<div class="span2"><i class="icon-comment"></i> <span id="lang"></span></div>' +
+                    '<div class="span2"><strong><span>Followers: </span></strong><span id="followers"></span></div>' +
+                    '</div>' +
+                    '<div class="media">' +
 //                        '<a class="pull-left" href="#">' +
 //                        '<img id="url" class="media-object" data-src="">' +
 //                        '</a>' +
-                        '<div class="media-body"><br><i class="icon-twitter"></i>' +
-                        '<span id="tweet"></span></div>' +
-                        '</div></div>')
+                    '<div class="media-body"><br><i class="icon-twitter"></i>' +
+                    '<span id="tweet"></span></div>' +
+                    '</div></div>')
 
 
-                $("#tweet", el).text(' ' + data.tweet)
-                $("#created_at", el).text(data.created_at)
-                $("#tweeterUser", el).text(data.tweeterUser)
-                $("#followers", el).text(data.followers_count)
-                $("#lang", el).text(data.lang)
-                $("#url", el).attr("src", data.url)
-                $('#twitter-' + $("#filter").val()).prepend(el)
+            $("#tweet", el).text(' ' + data.tweet)
+            $("#created_at", el).text(data.created_at)
+            $("#tweeterUser", el).text(data.tweeterUser)
+            $("#followers", el).text(data.followers_count)
+            $("#lang", el).text(data.lang)
+            $("#url", el).attr("src", data.url)
 
-            } else {
-                var el = $('<div class="message"><span></span><p></p></div>')
-                $("span", el).text(data.user)
+            var languageSelected = $("#filterByLanguage option:selected").val()
+            var followersSelected = $("#filterByFollowers option:selected").val()
+            var locationSelected = $("#filterByLocation option:selected").val()
+            var twitter = '#twitter-' + $("#filter").val() + languageSelected + followersSelected + locationSelected
+            $(twitter).prepend(el)
 
-                $("p", el).text(data.message)
-                $(el).addClass(data.kind)
-                if (data.user == '@username') $(el).addClass('me')
-                $('#twitter').prepend(el)
-            }
+        } else {
+            var el = $('<div class="message"><span></span><p></p></div>')
+            $("span", el).text(data.user)
 
+            $("p", el).text(data.message)
+            $(el).addClass(data.kind)
+            if (data.user == '@username') $(el).addClass('me')
+            $('#twitter').prepend(el)
         }
 
-        chatSocket.onmessage = receiveEvent
+    }
 
-    })
+    chatSocket.onmessage = receiveEvent
+
+})
 
 
-    jQuery("#start").click(
-            function () {
-                $('#searchResults').show()
-                if ($("#currentFilter").val() != "") {
-                    $('#li-tab-search-' + $("#currentFilter").val()).removeClass()
-                    $("#Search" + $("#currentFilter").val()).removeClass()
-                    $("#Search" + $("#currentFilter").val()).addClass("tab-pane fade")
+jQuery("#start").click(
+        function () {
+            $('#searchResults').show()
+            var found = false
+            for (var tab = 0; tab < $('#search-nav li a').length; tab++) {
+                if ($('#search-nav li a')[tab].text == $("#filter").val()) {
+                    var tabName = $('#search-nav li a')[tab].attributes[0].value
+                    if ($(tabName + 'Language').text() == ' ' + $("#filterByLanguage option:selected").text() &&
+                            $(tabName + 'Followers').text() == ' ' + $("#filterByFollowers option:selected").text() &&
+                            $(tabName + 'Location').text() == ' ' + $("#filterByLocation option:selected").text()) {
+                        $('a[href=' + tabName + ']').tab('show');
+                        found = true
+                        break
+                    }
                 }
-                $("#currentFilter").val($("#filter").val())
+            }
 
-                var el1 = $('<li id="li-tab-search-' + $("#filter").val() + '"  class="active">' +
-                        '<a id="tab-search" href="" data-toggle="tab"></a></li>')
-                $("#tab-search", el1).text($("#filter").val())
-                $("#tab-search", el1).attr("href", '#Search' + $("#filter").val())
-                $('#search-nav').append(el1)
+            if (!found) {
+                var nextTab = $('#search-nav li').size() + 1;
 
-                var el2 = $('<div class="tab-pane active in" id="Search' + $("#filter").val() + '">' +
-                        '<div class="span3"><span class="label label-info">Language</span><span> ' + $("#filterByLanguage option:selected").text() + '</span></div>' +
-                        '<div class="span4"><span class="label label-info">Followers</span><span> ' + $("#filterByFollowers option:selected").text() + '</span></div>' +
-                        '<div class="span3"><span class="label label-info">Location</span><span> ' + $("#filterByLocation option:selected").text() + '</span></div>' +
-                        '<div class="span2"><i class="icon-trash"></i><span> Delete</span></div>' +
+                // create the tab
+                $('<li><a href="#tab' + nextTab + '" data-toggle="tab">' + $("#filter").val() + '</a></li>').appendTo('#search-nav');
+
+                // create the tab content
+                var languageSelected = $("#filterByLanguage option:selected").text()
+                var followersSelected = $("#filterByFollowers option:selected").text()
+                var locationSelected = $("#filterByLocation option:selected").text()
+
+                var languageSelectedValue = $("#filterByLanguage option:selected").val()
+                var followersSelectedValue = $("#filterByFollowers option:selected").val()
+                var locationSelectedValue = $("#filterByLocation option:selected").val()
+                $('<div class="tab-pane" id="tab' + nextTab + '">' +
+                        '<div class="span3"><span class="label label-info">Language</span><span id=' + 'tab' + nextTab + 'Language' + '> ' + languageSelected + '</span></div>' +
+                        '<div class="span4"><span class="label label-info">Followers</span><span id=' + 'tab' + nextTab + 'Followers' + '> ' + followersSelected + '</span></div>' +
+                        '<div class="span3"><span class="label label-info">Location</span><span id=' + 'tab' + nextTab + 'Location' + '> ' + locationSelected + '</span></div>' +
+                        '<div class="span2"><a id="delete" href="#" class="btn padding-bottom:10px"><i class="icon-trash"></i><span> Delete</span></a></div>' +
                         '<div id="onChat" class="row" style="display: block;">' +
                         '<div class="span13 main_left_component" id="main">' +
-                        '<div id="twitter-' + $("#filter").val() + '"></div>' +
-                        '</div></div></div></div>')
-                $('#mySearchTabContent').append(el2)
+                        '<div id="twitter-' + $("#filter").val() + languageSelectedValue + followersSelectedValue + locationSelectedValue + '"></div>' +
+                        '</div></div>' +
+                        '</div>').appendTo('#mySearchTabContent');
 
-                $('#stop').show()
-                $('#start').hide()
-                $('#filter').attr('disabled', 'disabled')
-                $('#filterByLanguage').attr('disabled', 'disabled')
-                $('#filterByFollowers').attr('disabled', 'disabled')
-                $('#filterByLocation').attr('disabled', 'disabled')
+                // make the new tab active
+                $('#search-nav a:last').tab('show');
 
-//                if ($("#filterByLanguage").val() == 'No filter')
-//                    $.get("@routes.Application.startFilter()", {'username': "@username", 'filter': $("#filter").val()}, function (data) {
-//                        $('#perete').html(data);
-//                    });
-//                else
-                $.get("@routes.Application.startFilter()", {'username': "@username",
-                    'filter': $("#filter").val(),
-                    'followers': $("#filterByFollowers").val(),
-                    'language': $("#filterByLanguage").val(),
-                    'location': $("#filterByLocation").val()
-                }, function (data) {
-                    $('#perete').html(data);
-                });
-
-                return false;
             }
-    )
 
-    jQuery("#stop").click(
-            function () {
-                $('#start').show()
-                $('#filter').removeAttr('disabled')
-                $('#filterByLanguage').removeAttr('disabled')
-                $('#filterByFollowers').removeAttr('disabled')
-                $('#filterByLocation').removeAttr('disabled')
+            $('#stop').show()
+            $('#start').hide()
+            $('#filter').attr('disabled', 'disabled')
+            $('#filterByLanguage').attr('disabled', 'disabled')
+            $('#filterByFollowers').attr('disabled', 'disabled')
+            $('#filterByLocation').attr('disabled', 'disabled')
 
-                $('#stop').hide()
-                $.get("@routes.Application.stopFilter()", {
-                    'username': "@username",
-                    'filter': $("#filter").val(),
-                    'location': $("#filterByLocation").val()}, function (data) {
-                    $('#perete').html(data);
-                });
-                return false;
-            }
-    )
+            $.get("@routes.Application.startFilter()", {'username': "@username",
+                'filter': $("#filter").val(),
+                'followers': $("#filterByFollowers").val(),
+                'language': $("#filterByLanguage").val(),
+                'location': $("#filterByLocation").val()
+            }, function (data) {
+                $('#perete').html(data);
+            });
 
-    $(document.body).on("click", "label.tree-toggler", function () {
-        $(this).parent().children('ul.tree').toggle(300);
-    })
+            return false;
+        }
+)
+
+jQuery("#stop").click(
+        function () {
+            $('#searchAlertDiv').remove();
+            $('#start').show()
+            $('#filter').removeAttr('disabled')
+            $('#filterByLanguage').removeAttr('disabled')
+            $('#filterByFollowers').removeAttr('disabled')
+            $('#filterByLocation').removeAttr('disabled')
+
+            $('#stop').hide()
+            $.get("@routes.Application.stopFilter()", {
+                'username': "@username",
+                'filter': $("#filter").val(),
+                'location': $("#filterByLocation").val()}, function (data) {
+                $('#perete').html(data);
+            });
+            return false;
+        }
+)
+
+$(document.body).on("click", "label.tree-toggler", function () {
+    $(this).parent().children('ul.tree').toggle(300);
+})
+
+$(document.body).on("click", "#delete", function () {
+    var tabName = $('#search-nav li.active a').attr("href")
+
+    if ($('#search-nav li.active a').text() == $('#filter').val() && !$("#start").is(":visible") &&
+            $(tabName + 'Language').text() == ' ' + $("#filterByLanguage option:selected").text() &&
+            $(tabName + 'Followers').text() == ' ' + $("#filterByFollowers option:selected").text() &&
+            $(tabName + 'Location').text() == ' ' + $("#filterByLocation option:selected").text()) {
+        if ($('#searchAlertDiv').length == 0) {
+            $('<div class="alert" id="searchAlertDiv"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                    '<strong>Warning</strong> You cannot remove a running stream. Please, stop it before removing it</div>').prependTo('#searchResults')
+            window.setTimeout(function () {
+                $('#searchAlertDiv').remove();
+            }, 5000);
+        }
+    } else {
+        $('#search-nav li.active').remove()
+        $('.tab-pane.active:last').remove()
+
+        var tabs = $('#search-nav li').size()
+        if (tabs == 0) $('#searchResults').hide()
+        else $('#search-nav a:last').tab('show')
+    }
+})
 
 
 </script>

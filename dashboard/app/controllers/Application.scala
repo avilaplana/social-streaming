@@ -48,17 +48,17 @@ object Application extends Controller with Logging {
       val valueToFilterBy = filter.getOrElse(throw new RuntimeException)
 
       val followersFilter = followers match {
-        case Some(follow) if (!follow.equals("No filter")) => Some(follow)
+        case Some(follow) if (!follow.equals("Nofilter")) => Some(follow)
         case _ => None
       }
 
       val languageFilter = language match {
-        case Some(lang) if (!lang.equals("No filter")) => Some(lang)
+        case Some(lang) if (!lang.equals("Nofilter")) => Some(lang)
         case _ => None
       }
 
       val locationFilter = location match {
-        case Some(loc) if (!loc.equals("No filter")) => registry.filterStrategy.addLocation(loc); Some(loc)
+        case Some(loc) if (!loc.equals("Nofilter")) => registry.filterStrategy.addLocation(loc); Some(loc)
         case _ => registry.filterStrategy.addFilter(valueToFilterBy); None
       }
 
@@ -72,7 +72,7 @@ object Application extends Controller with Logging {
       val valueToFilterBy = filter.getOrElse(throw new RuntimeException)
 
       val locationFilter = location match {
-        case Some(loc) if (!loc.equals("No filter")) => registry.filterStrategy.removeLocation(loc); Some(loc)
+        case Some(loc) if (!loc.equals("Nofilter")) => registry.filterStrategy.removeLocation(loc); Some(loc)
         case _ => registry.filterStrategy.removeFilter(valueToFilterBy); None
       }
       Master.default ! RemoveFilter(username.get, valueToFilterBy)

@@ -17,7 +17,7 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
   var sessionId: Option[String] = None
 
   var httpPost = new HttpPost(url)
-  val filtersToApply = mutable.HashMap.empty[String, Integer]
+  val filtersToApply : mutable.HashMap[String, Integer] = mutable.HashMap("#" -> 1)
 
   override def postStop() {
     super.postStop()
@@ -28,7 +28,7 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
     case AddFilter(parameters) => {
       val (filterKey, newFilter) = getFilter(parameters)
       debug(s"Adding to the streaming $newFilter. to $filtersToApply")
-      filtersToApply.isEmpty match {
+      (filtersToApply.size == 1) match {
         case false => {
           filtersToApply.get(newFilter.toLowerCase()) match {
             case Some(numberReq) => filtersToApply += (newFilter.toLowerCase() -> (numberReq + 1)); debug(s"$newFilter already exists in $filtersToApply")
@@ -60,7 +60,7 @@ class TwitterConnector(url: String, oAuthProvider: OAuthProvider, master: ActorR
             debug(s"Substracting $newFilter from the streaming from $filtersToApply")
           }
 
-          val message = filtersToApply.isEmpty match {
+          val message = (filtersToApply.size == 1) match {
             case true => StopStream
             case false => {
               httpPost.releaseConnection()

@@ -300,9 +300,13 @@ function startSearchRecommendation(query, language) {
         $("#filterByLanguage").val(language)
         $("#filterByLocation").val("NoFilter")
         $("#filterByFollowers").val("NoFilter")
-    } else {
-        alert("Search Running")
-    }
+    } else if ($('#searchRecommendationAlertDiv').length == 0) {
+                    $('<div class="alert" id="searchRecommendationAlertDiv"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                            '<strong>Warning</strong> You cannot run a search because there is one active. Please, stop it before</div>').prependTo('#loadingRecommendationMessage')
+                    window.setTimeout(function () {
+                        $('#searchRecommendationAlertDiv').remove();
+                    }, 5000);
+                }
 }
 
 function escapeCharacters(query) {return query.replace(/[#;&,.+*~':"!^$[\]()=>|\/]/g, "\\$&");}

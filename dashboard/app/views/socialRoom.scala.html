@@ -120,9 +120,9 @@ $(function () {
             $('#recommendations').show()
             var el = '<div id="recommendationList">'
             for (var i = 0; i < data.recommendations.length; i++) {
-                el = el + '<li><label class="tree-toggler nav-header">' + data.recommendations[i].language + '</label><ul class="nav nav-list tree">'
+                el = el + '<li><label class="tree-toggler nav-header">' + data.recommendations[i].language + '</label><ul class="nav nav-list tree" style="display: none;">'
                 for (var j = 0; j < data.recommendations[i].candidates.length; j++) {
-                    el = el + '<li><a href="#">' + data.recommendations[i].candidates[j] + '</a></li>'
+                    el = el + '<li><a href="#" onclick="startSearchRecommendation(\'' + data.recommendations[i].candidates[j] + "\',\'" + data.recommendations[i].language +'\')">' + data.recommendations[i].candidates[j] + '</a></li>'
                 }
                 el = el + '</ul></li><li class="divider"></li>'
             }
@@ -158,7 +158,7 @@ $(function () {
             var languageSelected = $("#filterByLanguage option:selected").val()
             var followersSelected = $("#filterByFollowers option:selected").val()
             var locationSelected = $("#filterByLocation option:selected").val()
-            var twitter = '#twitter-' + $("#filter").val() + languageSelected + followersSelected + locationSelected
+            var twitter = '#twitter-' + escapeCharacters($("#filter").val()) + languageSelected + followersSelected + locationSelected
             $(twitter).prepend(el)
 
         } else {
@@ -213,7 +213,7 @@ jQuery("#start").click(
                         '<div class="span3"><span class="label label-info">Language</span><span id=' + 'tab' + nextTab + 'Language' + '> ' + languageSelected + '</span></div>' +
                         '<div class="span4"><span class="label label-info">Followers</span><span id=' + 'tab' + nextTab + 'Followers' + '> ' + followersSelected + '</span></div>' +
                         '<div class="span3"><span class="label label-info">Location</span><span id=' + 'tab' + nextTab + 'Location' + '> ' + locationSelected + '</span></div>' +
-                        '<div class="span2"><a id="delete" href="#" class="btn padding-bottom:10px"><i class="icon-trash"></i><span> Delete</span></a></div>' +
+                        '<div class="span2"><a id="delete" href="#" class="btn btn-small btn-primary"><i class="icon-trash"></i><span> Delete</span></a></div>' +
                         '<div id="onChat" class="row" style="display: block;">' +
                         '<div class="span13 main_left_component" id="main">' +
                         '<div id="twitter-' + $("#filter").val() + languageSelectedValue + followersSelectedValue + locationSelectedValue + '"></div>' +
@@ -292,6 +292,20 @@ $(document.body).on("click", "#delete", function () {
         else $('#search-nav a:last').tab('show')
     }
 })
+
+
+function startSearchRecommendation(query, language) {
+    if ($("#start").is(":visible")) {
+        $("#filter").val(query)
+        $("#filterByLanguage").val(language)
+        $("#filterByLocation").val("NoFilter")
+        $("#filterByFollowers").val("NoFilter")
+    } else {
+        alert("Search Running")
+    }
+}
+
+function escapeCharacters(query) {return query.replace(/[#;&,.+*~':"!^$[\]()=>|\/]/g, "\\$&");}
 
 
 </script>

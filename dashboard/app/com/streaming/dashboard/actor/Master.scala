@@ -167,6 +167,7 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
         case _ => None
       }
 
+      //todo fix this if there is not candidates why do  we need to map?
       val msg = JsObject(
         Seq(
           "user" -> JsString("alvaro"),
@@ -179,26 +180,16 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
           "friends_count" -> JsString(twitterEvent.user.friends_count.toString)
         )
       )
-      forthRoundCandidates.foreach(username => connected.get(username).get.push(msg))
+
+      forthRoundCandidates.foreach {
+        username =>
+          debug(s"Ready to send to websocket $msg")
+          connected.get(username).get.push(msg)
+      }
     }
 
     case recommendations: Recommendations => {
       if (recommendations.listRecommendationds.size > 0) {
-//        val msg = JsObject(
-//          "recommendations" -> JsArray(
-//            JsObject(
-//              "language" -> JsString("es") ::
-//                "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
-//                :: Nil)
-//              ::
-//              JsObject(
-//                "language" -> JsString("en") ::
-//                  "candidates" -> JsArray(JsString("test1") :: JsString("test2") :: Nil)
-//                  :: Nil
-//              ) :: Nil
-//          ) :: Nil
-//        )
-
         val recommnedationList = ListBuffer.empty[JsValue]
         recommendations.listRecommendationds.foreach {
           recommendation =>

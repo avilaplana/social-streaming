@@ -122,7 +122,7 @@ $(function () {
             for (var i = 0; i < data.recommendations.length; i++) {
                 el = el + '<li><label class="tree-toggler nav-header">' + data.recommendations[i].language + '</label><ul class="nav nav-list tree" style="display: none;">'
                 for (var j = 0; j < data.recommendations[i].candidates.length; j++) {
-                    el = el + '<li><a href="#" onclick="startSearchRecommendation(\'' + data.recommendations[i].candidates[j] + "\',\'" + data.recommendations[i].language +'\')">' + data.recommendations[i].candidates[j] + '</a></li>'
+                    el = el + '<li><a href="#" onclick="startSearchRecommendation(\'' + data.recommendations[i].candidates[j] + "\',\'" + data.recommendations[i].language + '\')">' + data.recommendations[i].candidates[j] + '</a></li>'
                 }
                 el = el + '</ul></li><li class="divider"></li>'
             }
@@ -147,8 +147,8 @@ $(function () {
                     '<span id="tweet"></span></div>' +
                     '</div></div>')
 
-
-            $("#tweet", el).text(' ' + data.tweet)
+            var replaced = replaceURLWithHTMLLink(data.tweet)
+            $("#tweet", el).html(' ' + replaced)
             $("#created_at", el).text(data.created_at)
             $("#tweeterUser", el).text(data.tweeterUser)
             $("#followers", el).text(data.followers_count)
@@ -301,17 +301,21 @@ function startSearchRecommendation(query, language) {
         $("#filterByLocation").val("NoFilter")
         $("#filterByFollowers").val("NoFilter")
     } else if ($('#searchRecommendationAlertDiv').length == 0) {
-                    $('<div class="alert" id="searchRecommendationAlertDiv"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
-                            '<strong>Warning</strong> You cannot run a search because there is one active. Please, stop it before</div>').prependTo('#loadingRecommendationMessage')
-                    window.setTimeout(function () {
-                        $('#searchRecommendationAlertDiv').remove();
-                    }, 5000);
-                }
+        $('<div class="alert" id="searchRecommendationAlertDiv"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                '<strong>Warning</strong> You cannot run a search because there is one active. Please, stop it before</div>').prependTo('#loadingRecommendationMessage')
+        window.setTimeout(function () {
+            $('#searchRecommendationAlertDiv').remove();
+        }, 5000);
+    }
 }
 
-function escapeCharacters(query) {return query.replace(/[#;&,.+*~':"!^$[\]()=>|\/]/g, "\\$&");}
+function escapeCharacters(query) {
+    return query.replace(/[#;&,.+*~':"!^$[\]()=>|\/]/g, "\\$&");
+}
 
-
+function replaceURLWithHTMLLink(text) {
+    return text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&#\/%?=~_|!:,.;]*[-A-Z0-9+&#\/%=~_|])/ig, '<a href="$1">$1</a>');
+}
 </script>
 
 }

@@ -115,7 +115,7 @@ The next snapshot shows the user interface (to be improved.... a lot)
 
 The next diagram show the architecture
 
-![Adding Facebook](https://raw.github.com/avilaplana/social-streaming/master/documentation/second.png)
+![Adding Facebook](https://raw.github.com/avilaplana/social-streaming/master/documentation/diagram.png)
 
 2. Deploy in a real environment
 

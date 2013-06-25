@@ -105,7 +105,7 @@ Go to the dashboard folder and execute
 
 The next snapshot shows the user interface (to be improved.... a lot)
 
-![Social Networks talk](https://raw.github.com/avilaplana/social-streaming/master/documentation/Social-dashboard.png)
+![Social Networks talk](https://raw.github.com/avilaplana/social-streaming/master/documentation/dashboard.png)
 
 ***
 

@@ -34,5 +34,10 @@ libraryDependencies +=  "com.rabbitmq" % "amqp-client" % "3.0.4" % "compile"
 
 libraryDependencies += "org.skife.com.typesafe.config" % "typesafe-config" % "0.3.0" % "compile"
 
+libraryDependencies += "com.novus" %% "salat" % "1.9.2-SNAPSHOT" % "compile"
+
 libraryDependencies += "org.specs2" % "specs2_2.10" % "1.13" % "test"
+
+
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 

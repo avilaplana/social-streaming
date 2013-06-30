@@ -138,6 +138,7 @@ $(function () {
                     '<div class="span3"><span id="created_at"></span></div>' +
                     '<div class="span2"><i class="icon-comment"></i> <span id="lang"></span></div>' +
                     '<div class="span2"><strong><span>Followers: </span></strong><span id="followers"></span></div>' +
+                    '<div class="110px"><strong><span>Gender: </span></strong> <i class="icon-female"></i> </div>' +
                     '</div>' +
                     '<div class="media">' +
 //                        '<a class="pull-left" href="#">' +
@@ -160,6 +161,9 @@ $(function () {
             var locationSelected = $("#filterByLocation option:selected").val()
             var twitter = '#twitter-' + escapeCharacters($("#filter").val()) + languageSelected + followersSelected + locationSelected
             $(twitter).prepend(el)
+            var pulse = '#pulse-' + escapeCharacters($("#filter").val()) + languageSelected + followersSelected + locationSelected
+            var pulseValue = parseInt($(pulse).text())
+            $(pulse).text(pulseValue + 1)
 
         } else {
             var el = $('<div class="message"><span></span><p></p></div>')
@@ -209,10 +213,13 @@ jQuery("#start").click(
                 var languageSelectedValue = $("#filterByLanguage option:selected").val()
                 var followersSelectedValue = $("#filterByFollowers option:selected").val()
                 var locationSelectedValue = $("#filterByLocation option:selected").val()
+
                 $('<div class="tab-pane" id="tab' + nextTab + '">' +
-                        '<div class="span3"><span class="label label-info">Language</span><span id=' + 'tab' + nextTab + 'Language' + '> ' + languageSelected + '</span></div>' +
-                        '<div class="span4"><span class="label label-info">Followers</span><span id=' + 'tab' + nextTab + 'Followers' + '> ' + followersSelected + '</span></div>' +
-                        '<div class="span3"><span class="label label-info">Location</span><span id=' + 'tab' + nextTab + 'Location' + '> ' + locationSelected + '</span></div>' +
+                        '<div class="span2"><span class="label label-info">Language</span><span id=' + 'tab' + nextTab + 'Language' + '> ' + languageSelected + '</span></div>' +
+                        '<div class="span3"><span class="label label-info">Followers</span><span id=' + 'tab' + nextTab + 'Followers' + '> ' + followersSelected + '</span></div>' +
+                        '<div class="span2"><span class="label label-info">Location</span><span id=' + 'tab' + nextTab + 'Location' + '> ' + locationSelected + '</span></div>' +
+                        '<div class="span2"><span class="label label-info">Pulse</span><span id="pulse-' + $("#filter").val() + languageSelectedValue + followersSelectedValue + locationSelectedValue + '">' + 0 + '</span></div>' +
+                        '<div class="span2"><span class="label label-info">Start</span><span id="start-' + $("#filter").val() + languageSelectedValue + followersSelectedValue + locationSelectedValue + '">' + currentDate() + '</span></div>' +
                         '<div class="span2"><a id="delete" href="#" class="btn btn-small btn-primary"><i class="icon-trash"></i><span> Delete</span></a></div>' +
                         '<div id="onChat" class="row" style="display: block;">' +
                         '<div class="span13 main_left_component" id="main">' +
@@ -315,6 +322,11 @@ function escapeCharacters(query) {
 
 function replaceURLWithHTMLLink(text) {
     return text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&#\/%?=~_|!:,.;]*[-A-Z0-9+&#\/%=~_|])/ig, '<a href="$1">$1</a>');
+}
+
+function currentDate() {
+    var currentDate = new Date()
+    return currentDate.toUTCString()
 }
 </script>
 

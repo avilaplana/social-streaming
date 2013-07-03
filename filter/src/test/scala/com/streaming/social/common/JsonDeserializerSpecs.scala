@@ -18,7 +18,7 @@ class JsonDeserializerSpecs extends Specification {
         text = "this is a test",
         created_at = cal.getTime,
         lang = Some("en"),
-        User(profile_image_url = "http://test.com/images/test.jpg",
+        User(name = "testName", profile_image_url = "http://test.com/images/test.jpg",
              screen_name = "testuser",
             followers_count = 99,
         friends_count = 199), Some(Place(full_name = Some("Murcia, Spain"), country_code = Some("ES")))))
@@ -27,6 +27,6 @@ class JsonDeserializerSpecs extends Specification {
     }
   }
 
-  val jsonExpected = """{"text":"this is a test","created_at":"Fri Feb 1 00:00:00 +0000 2013","lang":"en","user":{"profile_image_url":"http://test.com/images/test.jpg","screen_name":"testuser","followers_count":99,"friends_count":199},"place":{"full_name":"Murcia, Spain","country_code":"ES"}}"""
+  val jsonExpected = """{"text":"this is a test","created_at":"Fri Feb 1 00:00:00 +0000 2013","lang":"en","user":{"name":"testName","profile_image_url":"http://test.com/images/test.jpg","screen_name":"testuser","followers_count":99,"friends_count":199},"place":{"full_name":"Murcia, Spain","country_code":"ES"}}"""
 
 }

@@ -170,7 +170,8 @@ class Master(filterStrategy: FilterAdapter[String]) extends Actor with Logging {
       //todo fix this if there is not candidates why do  we need to map?
       val msg = JsObject(
         Seq(
-          "user" -> JsString("alvaro"),
+          "name" -> JsString(twitterEvent.user.name),
+          "gender" -> JsString(twitterEvent.user.gender.getOrElse("undefined")),
           "tweet" -> JsString(twitterEvent.text),
           "created_at" -> JsString(twitterEvent.created_at.toString),
           "lang" -> JsString(lang.getOrElse("undefined")),

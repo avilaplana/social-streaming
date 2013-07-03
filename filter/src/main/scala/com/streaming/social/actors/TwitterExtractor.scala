@@ -5,10 +5,15 @@ import com.streaming.social.common.JsonDeserializer
 import akka.event.Logging
 
 
-class TwitterExtractor extends Actor{
+class TwitterExtractor extends Actor {
   val json = new JsonDeserializer[TwitterEvent]()
+
   def receive = {
 
-    case Tweet(tweet) => sender !  json.extractJsonToObject(tweet)
+    case Tweet(tweet) => {
+      val tweetEvent = json.extractJsonToObject(tweet)
+      tweetEvent.copy(user = tweetEvent.user.copy(gender = Some("male")))
+      sender ! tweetEvent
+    }
   }
 }

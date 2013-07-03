@@ -20,17 +20,21 @@ class JsonDeserializer() {
     val text = jsonNode.get("text").asText()
     val created_at = jsonNode.get("created_at").asText()
     val url = jsonNode.get("user").get("profile_image_url").asText()
-    val language = if (jsonNode.get("lang") == null) None else Some(jsonNode.get("lang").asText())
-    val name = jsonNode.get("user").get("screen_name").asText()
+    val lang = jsonNode.get("lang")
+    val language = if (lang == null) None else Some(lang.asText())
+    val screenName = jsonNode.get("user").get("screen_name").asText()
     val followers = jsonNode.get("user").get("followers_count").asInt()
     val friends = jsonNode.get("user").get("friends_count").asInt()
+    val name = jsonNode.get("user").get("name").asText()
+    val gen = jsonNode.get("user").get("gender")
+    val gender =  if ( gen == null) None else Some(gen.asText())
     var place: Place = null
     if (jsonNode.get("place") != null) place = Place(full_name = Option(jsonNode.get("place").get("full_name").asText()),
       country_code = Option(jsonNode.get("place").get("country_code").asText()))
 
     TwitterEvent(text = text, created_at = dateFormatter.parse(created_at),
       lang = language,
-      user = User(screen_name = name, profile_image_url = url, followers_count = followers, friends_count = friends),
+      user = User(name = name, screen_name = screenName, profile_image_url = url, followers_count = followers, friends_count = friends, gender = gender),
       place = Option(place))
   }
 

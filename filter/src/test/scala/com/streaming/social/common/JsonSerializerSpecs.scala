@@ -15,8 +15,10 @@ class JsonSerializerSpecs extends Specification {
       twitterInstance.user.profile_image_url must_== "http://a0.twimg.com/profile_images/2995540720/0dfc4bc235fa893150b6865a33b33ed4_normal.jpeg"
       twitterInstance.created_at must_!= null
       twitterInstance.user.screen_name must_== "willstauff"
-      twitterInstance.user.followers_count == 10077
-      twitterInstance.user.friends_count == 11065
+      twitterInstance.user.followers_count must_== 10077
+      twitterInstance.user.friends_count must_== 11065
+      twitterInstance.user.name must_== "William Stauff"
+      twitterInstance.user.gender.isEmpty must beTrue
       twitterInstance.lang must_== Some("en")
     }
   }

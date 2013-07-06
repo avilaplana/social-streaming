@@ -11,7 +11,7 @@ import com.mongodb.casbah.commons.TypeImports.ObjectId
 
 case class Name(name: String, gender: String, @Key("_id") id: ObjectId = ObjectId.get())
 
-object NameRepository extends SalatDAO[Name, ObjectId](collection = MongoConnection()("social_stream")("names")) {
+class NameRepository extends SalatDAO[Name, ObjectId](collection = MongoConnection()("social_stream")("names")) {
   def findOneByName(name: String): Option[Name] = {
     findOne(new BasicDBObject("name", name))
   }

@@ -4,7 +4,7 @@ import unfiltered.request.{Seg, POST, Path}
 import akka.actor.{Props, ActorSystem}
 import com.streaming.social.actors.{RemoveFilter, AddFilter, Master}
 import unfiltered.response.Ok
-import com.streaming.social.common.{Logging, OAuthProvider}
+import com.streaming.social.common.{GenderCalculator, Logging, OAuthProvider}
 import com.streaming.social.registry
 import com.streaming.social.mq.ProducerAdaptor
 import java.net.URLDecoder
@@ -12,13 +12,14 @@ import java.net.URLDecoder
 class MasterResource extends MasterResourceInt
 
 
-class MasterResourceInt(oauth: OAuthProvider = registry.oauth,
+class MasterResourceInt(genderCalculator : GenderCalculator = registry.genderCalculator,
+                        oauth : OAuthProvider = registry.oauth,
                         producerStrategy: ProducerAdaptor[String] = registry.producerStrategy,
                         url: String = registry.url,
                         coordinates: Map[String,String] = registry.coordinates) extends unfiltered.filter.Plan with Logging {
 
   val system = ActorSystem("MySystem")
-  val master = system.actorOf(Props(new Master(oauth, producerStrategy, url)), name = "master")
+  val master = system.actorOf(Props(new Master(oauth, producerStrategy, url, genderCalculator)), name = "master")
 
   def intent = {
     case req@POST(Path(Seg("filter" :: "add" :: track :: Nil))) => {

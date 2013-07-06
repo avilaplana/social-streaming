@@ -1,6 +1,7 @@
 package com.streaming.social
 
-import common.{Logging, OAuthProvider}
+import common.{GenderCalculator, Logging, OAuthProvider}
+import domain.NameRepository
 import mq.MQProducer
 import com.typesafe.config.ConfigFactory
 
@@ -23,6 +24,8 @@ class ComponentRegistry extends Logging {
 
   val producerStrategy = MQProducer(broker = conf.getString("configuration.mq.broker"),
     queue = conf.getString("configuration.mq.queue"))
+
+  val genderCalculator = new GenderCalculator(new NameRepository)
 
   val coordinates = Map(
     conf.getString("configuration.countries.uk.code") -> conf.getString("configuration.countries.uk.box"),

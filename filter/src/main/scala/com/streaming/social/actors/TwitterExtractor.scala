@@ -12,8 +12,9 @@ class TwitterExtractor extends Actor {
 
     case Tweet(tweet) => {
       val tweetEvent = json.extractJsonToObject(tweet)
-      tweetEvent.copy(user = tweetEvent.user.copy(gender = Some("male")))
-      sender ! tweetEvent
+      val tweetWithGender = tweetEvent.copy(user = tweetEvent.user.copy(gender = Some("male")))
+
+      sender ! tweetWithGender
     }
   }
 }

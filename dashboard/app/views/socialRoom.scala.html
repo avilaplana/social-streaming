@@ -138,7 +138,7 @@ $(function () {
                     '<div class="span3"><span id="created_at"></span></div>' +
                     '<div class="span2"><i class="icon-comment"></i> <span id="lang"></span></div>' +
                     '<div class="span2"><strong><span>Followers: </span></strong><span id="followers"></span></div>' +
-                    '<div class="110px"><strong><span>Gender: </span></strong> <i class="icon-female"></i> </div>' +
+                    '<div class="110px"><strong><span>Gender: </span></strong><span id="gender"></span></div>' +
                     '</div>' +
                     '<div class="media">' +
 //                        '<a class="pull-left" href="#">' +
@@ -155,6 +155,16 @@ $(function () {
             $("#followers", el).text(data.followers_count)
             $("#lang", el).text(data.lang)
             $("#url", el).attr("src", data.url)
+
+            if (data.gender == "Male") {
+                $("#gender", el).html('<i class="icon-male"></i>')
+            }
+            else if (data.gender == "Female") {
+                $("#gender", el).html('<i class="icon-female"></i>')
+            }
+            else {
+                $("#gender", el).html('<i class="icon-question-sign"></i>')
+            }
 
             var languageSelected = $("#filterByLanguage option:selected").val()
             var followersSelected = $("#filterByFollowers option:selected").val()
